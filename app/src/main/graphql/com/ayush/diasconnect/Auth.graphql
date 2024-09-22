@@ -1,0 +1,37 @@
+mutation SignUp($name: String!, $email: String!, $password: String!) {
+    signUp(name: $name, email: $email, password: $password) {
+        data {
+            id
+            name
+            email
+            token
+            created
+            updated
+        }
+        errorMessage
+    }
+}
+
+mutation SignIn($email: String!, $password: String!) {
+    signIn(email: $email, password: $password) {
+        data {
+            id
+            name
+            email
+            token
+            created
+            updated
+        }
+        errorMessage
+    }
+}
+
+query GetUser($id: ID!) {
+    getUser(id: $id) {
+        id
+        username
+        email
+        created
+        updated
+    }
+}

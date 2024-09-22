@@ -1,0 +1,30 @@
+type Query {
+    getUser(id: ID!): User
+}
+
+type Mutation {
+    signUp(name: String!, email: String!, password: String!): AuthResponse!
+    signIn(email: String!, password: String!): AuthResponse!
+}
+
+type User {
+    id: ID!
+    username: String!
+    email: String!
+    created: String!
+    updated: String!
+}
+
+type AuthResponse {
+    data: AuthResponseData
+    errorMessage: String
+}
+
+type AuthResponseData {
+    id: ID!
+    name: String!
+    email: String!
+    token: String!
+    created: String!
+    updated: String!
+}
