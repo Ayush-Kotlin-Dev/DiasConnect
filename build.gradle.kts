@@ -1,8 +1,16 @@
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
-plugins {
-    alias(libs.plugins.android.application) apply false
-    alias(libs.plugins.jetbrains.kotlin.android) apply false
-    alias(libs.plugins.apollo) apply false
-    alias(libs.plugins.kotlinx.serialization) apply false
-    alias(libs.plugins.dagger) apply  false
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    extra.apply {
+        set("hiltVersion", "2.50")
+        set("serializationVersion", "1.5.1") // Use the latest stable version
+
+    }
+    dependencies {
+//        classpath("com.android.tools.build:gradle:${Versions.agp}")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${Versions.kotlin}")
+        classpath("com.google.dagger:hilt-android-gradle-plugin:${Versions.hilt}")
+    }
 }
