@@ -3,8 +3,7 @@ package com.ayush.diasconnect
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import com.ayush.diasconnect.presentation.AuthScreen
-import com.ayush.diasconnect.presentation.HomeScreen
+import com.ayush.diasconnect.home.ProductScreen
 import com.ayush.diasconnect.ui.theme.DiasConnectTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -15,7 +14,7 @@ class MainActivity : ComponentActivity() {
 //        enableEdgeToEdge()
         setContent {
             DiasConnectTheme {
-                HomeScreen()
+                ProductScreen()
             }
         }
     }

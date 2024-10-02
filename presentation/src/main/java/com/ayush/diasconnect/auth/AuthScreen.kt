@@ -1,4 +1,4 @@
-package com.ayush.diasconnect.presentation
+package com.ayush.diasconnect.auth
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardActions
@@ -19,16 +19,22 @@ import androidx.hilt.navigation.compose.hiltViewModel
 
 @Composable
 fun AuthScreen(
-    viewModel: AuthViewModel = hiltViewModel()
+    viewModel: AuthViewModel = hiltViewModel(),
+    onAuthSuccess: () -> Unit
 ) {
     var isSignUp by remember { mutableStateOf(false) }
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
-    val authState by viewModel.authState.collectAsState()
-    val focusRequester = remember { FocusRequester() }
+    val uiState by viewModel.uiState.collectAsState()
     val focusManager = LocalFocusManager.current
+
+    LaunchedEffect(uiState.isAuthenticated) {
+        if (uiState.isAuthenticated) {
+            onAuthSuccess()
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -42,16 +48,11 @@ fun AuthScreen(
                 value = name,
                 onValueChange = { name = it },
                 label = { Text("Name") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .focusRequester(focusRequester),
-                keyboardActions = KeyboardActions(
-                    onNext = {
-                        focusManager.moveFocus(FocusDirection.Down)
-                    }
-                ),
-                singleLine = true,
-                keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next)
+                modifier = Modifier.fillMaxWidth(),
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                keyboardActions = KeyboardActions(onNext = {
+                    focusManager.moveFocus(FocusDirection.Down)
+                })
             )
             Spacer(modifier = Modifier.height(8.dp))
         }
@@ -61,13 +62,10 @@ fun AuthScreen(
             onValueChange = { email = it },
             label = { Text("Email") },
             modifier = Modifier.fillMaxWidth(),
-            keyboardActions = KeyboardActions(
-                onDone = {
-                    focusManager.moveFocus(FocusDirection.Down)
-                }
-            ),
-            singleLine = true,
-            keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next)
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+            keyboardActions = KeyboardActions(onNext = {
+                focusManager.moveFocus(FocusDirection.Down)
+            })
         )
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -77,42 +75,51 @@ fun AuthScreen(
             label = { Text("Password") },
             visualTransformation = PasswordVisualTransformation(),
             modifier = Modifier.fillMaxWidth(),
-            keyboardActions = KeyboardActions(
-                onDone = {
-                    focusManager.clearFocus()
-                }
-            ),
-            singleLine = true,
-            keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done)
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+            keyboardActions = KeyboardActions(onDone = {
+                focusManager.clearFocus()
+            })
         )
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
             onClick = {
                 if (isSignUp) {
-                    viewModel.signUp(name, email, password)
+                    viewModel.onEvent(AuthEvent.SignUp(name, email, password))
                 } else {
-                    viewModel.signIn(email, password)
+                    viewModel.onEvent(AuthEvent.SignIn(email, password))
                 }
-
             },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            enabled = !uiState.isLoading
         ) {
-            Text(if (isSignUp) "Sign Up" else "Sign In")
+            if (uiState.isLoading) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(24.dp),
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
+            } else {
+                Text(if (isSignUp) "Sign Up" else "Sign In")
+            }
         }
 
         TextButton(
             onClick = { isSignUp = !isSignUp },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text(if (isSignUp) "Already have an account? Sign In" else "Don't have an account? Sign Up")
+            Text(
+                if (isSignUp) "Already have an account? Sign In"
+                else "Don't have an account? Sign Up"
+            )
         }
 
-        when (val state = authState) {
-            is AuthState.Loading -> CircularProgressIndicator()
-            is AuthState.Success -> Text("Success: ${state.response.data?.name}")
-            is AuthState.Error -> Text("Error: ${state.message}", color = Color.Red)
-            else -> {}
+        uiState.error?.let { error ->
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = error,
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodyMedium
+            )
         }
     }
 }

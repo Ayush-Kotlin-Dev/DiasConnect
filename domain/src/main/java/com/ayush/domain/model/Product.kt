@@ -1,4 +1,4 @@
-package com.ayush.domain.repository.product
+package com.ayush.domain.model
 
 
 data class Product(

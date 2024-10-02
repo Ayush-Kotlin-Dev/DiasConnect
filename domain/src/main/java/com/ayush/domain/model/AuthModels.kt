@@ -1,4 +1,4 @@
-package com.ayush.data.model
+package com.ayush.domain.model
 
 
 data class AuthResponse(

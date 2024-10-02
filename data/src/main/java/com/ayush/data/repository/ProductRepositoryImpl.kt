@@ -2,9 +2,10 @@ package com.ayush.data.repository
 
 import com.apollographql.apollo.ApolloClient
 import com.ayush.GetProductsQuery
-import com.ayush.domain.repository.product.Product
-import com.ayush.domain.repository.product.ProductRepository
+import com.ayush.domain.model.Product
+import com.ayush.domain.repository.ProductRepository
 import javax.inject.Inject
+import com.ayush.domain.model.Result
 
 //TODO  apollo coroutines
 class ProductRepositoryImpl @Inject constructor(
@@ -13,14 +14,17 @@ class ProductRepositoryImpl @Inject constructor(
     override suspend fun getProducts(): Result<List<Product>> {
         return try {
             val response = apolloClient.query(GetProductsQuery()).execute()
-            if (response.hasErrors()) {
-                Result.failure(Exception(response.errors?.first()?.message))
-            } else {
-                val products = response.data?.products?.map { it.toProduct() } ?: emptyList()
-                Result.success(products)
+            when {
+                response.hasErrors() -> {
+                    Result.error(Exception(response.errors?.first()?.message))
+                }
+                else -> {
+                    val products = response.data?.products?.map { it.toProduct() } ?: emptyList()
+                    Result.success(products)
+                }
             }
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.error(e)
         }
     }
 
