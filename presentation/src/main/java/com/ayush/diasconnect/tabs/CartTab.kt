@@ -9,7 +9,9 @@ import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabOptions
 
-object CartTab : Tab {
+class CartTab(
+    private val onNavigator: (Boolean) -> Unit
+) : Tab {
     override val options: TabOptions
         @Composable
         get() {

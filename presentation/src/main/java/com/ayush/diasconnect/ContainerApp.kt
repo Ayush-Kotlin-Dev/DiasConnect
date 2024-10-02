@@ -1,5 +1,9 @@
 package com.ayush.diasconnect
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.RowScope
@@ -14,6 +18,8 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,9 +40,11 @@ import com.ayush.diasconnect.tabs.ProfileTab
 class ContainerApp : Screen {
     @Composable
     override fun Content() {
-        TabNavigator(HomeTab) { tabNavigator ->
-            val currentTab = tabNavigator.current
+        val showBottomBar = remember { mutableStateOf(true) }
 
+        TabNavigator(HomeTab(
+            onNavigator = { showBottomBar.value = it }
+        )) { tabNavigator ->
             Scaffold(
                 content = { innerPadding ->
                     Box(modifier = Modifier.padding(innerPadding)) {
@@ -44,31 +52,33 @@ class ContainerApp : Screen {
                     }
                 },
                 bottomBar = {
-                    if (shouldShowBottomBar(currentTab)) {
+                    AnimatedVisibility(
+                        visible = showBottomBar.value,
+                        enter = slideInVertically(
+                            initialOffsetY = { it },
+                            animationSpec = tween(durationMillis = 300)
+                        ),
+                        exit = slideOutVertically(
+                            targetOffsetY = { it },
+                            animationSpec = tween(durationMillis = 300)
+                        )
+                    ) {
                         NavigationBar(
-                            modifier = Modifier.height(74.dp),
+                            modifier = Modifier.height(73.dp),
                             containerColor = Color.White,
                             contentColor = Color.Black
                         ) {
-                            TabNavigationItem(HomeTab)
-                            TabNavigationItem(MoreTab)
-                            TabNavigationItem(CartTab)
-                            TabNavigationItem(ProfileTab)
+                            TabNavigationItem(HomeTab(onNavigator = { showBottomBar.value = it }))
+                            TabNavigationItem(MoreTab(onNavigator = { showBottomBar.value = it }))
+                            TabNavigationItem(CartTab(onNavigator = { showBottomBar.value = it }))
+                            TabNavigationItem(ProfileTab(onNavigator = { showBottomBar.value = it }))
                         }
                     }
                 }
             )
         }
     }
-
-    private fun shouldShowBottomBar(currentTab: Tab): Boolean {
-        return currentTab is HomeTab ||
-                currentTab is ProfileTab ||
-                currentTab is CartTab ||
-                currentTab is MoreTab
-    }
 }
-
 
 @Composable
 private fun RowScope.TabNavigationItem(tab: Tab) {
@@ -81,7 +91,7 @@ private fun RowScope.TabNavigationItem(tab: Tab) {
         icon = {
             Box(
                 modifier = Modifier
-                    .size(48.dp)  // Reduced from 56.dp
+                    .size(48.dp)
                     .clip(CircleShape)
                     .background(if (selected) Color.Red.copy(alpha = 0.1f) else Color.Transparent),
                 contentAlignment = Alignment.Center
@@ -91,7 +101,7 @@ private fun RowScope.TabNavigationItem(tab: Tab) {
                         painter = painter,
                         contentDescription = tab.options.title,
                         tint = if (selected) Color.Red else Color.Gray,
-                        modifier = Modifier.size(20.dp)  // Reduced from 24.dp
+                        modifier = Modifier.size(20.dp)
                     )
                 }
             }
