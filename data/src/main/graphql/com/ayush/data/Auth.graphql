@@ -63,3 +63,18 @@ query GetProductsByCategory($categoryId: ID!) {
     updatedAt
   }
 }
+
+query GetProductByIdQuery($id: String!) {
+  product(id: $id) {
+    id
+    name
+    description
+    price
+    stock
+    images
+    categoryId
+    sellerId
+    createdAt
+    updatedAt
+  }
+}

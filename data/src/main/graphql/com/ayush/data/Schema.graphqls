@@ -1,7 +1,10 @@
+scalar ID
+
 type Query {
     getUser(id: ID!): User
     products: [Product!]!
     productsByCategory(categoryId: ID!): [Product!]!
+    product(id: String!): Product
 }
 
 type Mutation {

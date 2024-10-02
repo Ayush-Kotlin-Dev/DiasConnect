@@ -53,6 +53,7 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import coil.compose.AsyncImage
+import com.ayush.diasconnect.detail_screen.ProductDetailScreen
 import com.ayush.diasconnect.search.SearchScreen
 import com.ayush.domain.model.Product
 
@@ -64,7 +65,9 @@ class ProductScreen : Screen {
         val navigator = LocalNavigator.currentOrThrow
         ProductScreenContent(
             uiState = uiState,
-            onProductClick = { /* TODO: Implement product click */ },
+            onProductClick = {
+                navigator.push(ProductDetailScreen(it.id))
+                },
             onSearchClick = {
                 navigator.push(SearchScreen())
             },
