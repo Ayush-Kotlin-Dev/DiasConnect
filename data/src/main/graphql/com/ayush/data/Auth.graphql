@@ -33,8 +33,24 @@ query GetUser($id: ID!) {
         email
     }
 }
+
 query GetProducts {
   products {
+    id
+    name
+    description
+    price
+    stock
+    images
+    categoryId
+    sellerId
+    createdAt
+    updatedAt
+  }
+}
+
+query GetProductsByCategory($categoryId: ID!) {
+  productsByCategory(categoryId: $categoryId) {
     id
     name
     description

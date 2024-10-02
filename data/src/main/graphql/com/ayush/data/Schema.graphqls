@@ -1,7 +1,7 @@
 type Query {
     getUser(id: ID!): User
     products: [Product!]!
-
+    productsByCategory(categoryId: ID!): [Product!]!
 }
 
 type Mutation {

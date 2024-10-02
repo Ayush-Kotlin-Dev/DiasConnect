@@ -10,9 +10,9 @@ apollo {
     service("service") {
         packageName.set("com.ayush")
         introspection {
-            endpointUrl.set("https://diasconnect-buyer-backend.onrender.com/graphiql")
+            endpointUrl.set("https://diasconnect-buyer-backend.onrender.com/graphql")
 //            headers.put("api-key", "1234567890abcdef")
-            schemaFile.set(file("src/main/graphql/schema.graphqls"))
+            schemaFile.set(file("src/main/graphql/com/ayush/data/schema.graphqls"))
         }
     }
 }
