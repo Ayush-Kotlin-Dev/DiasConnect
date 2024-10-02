@@ -3,14 +3,22 @@ package com.ayush.data.repository
 import com.apollographql.apollo.ApolloClient
 import com.ayush.SignInMutation
 import com.ayush.SignUpMutation
+import com.ayush.data.datastore.UserPreferences
+import com.ayush.data.datastore.UserSettings
+import com.ayush.data.datastore.toUser
+import com.ayush.data.datastore.toUserSettings
 import com.ayush.domain.model.AuthResponse
 import com.ayush.domain.model.AuthResponseData
 import com.ayush.domain.model.Result
+import com.ayush.domain.model.User
 import com.ayush.domain.repository.AuthRepository
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
 class AuthRepositoryImpl @Inject constructor(
-    private val apolloClient: ApolloClient
+    private val apolloClient: ApolloClient,
+    private val userPreferences: UserPreferences
 ) : AuthRepository {
     override suspend fun signUp(name: String, email: String, password: String): Result<AuthResponse> {
         return try {
@@ -28,21 +36,26 @@ class AuthRepositoryImpl @Inject constructor(
                 }
 
                 response.data?.signUp?.data != null -> {
-                    Result.success(
-                        AuthResponse(
-                            data = response.data?.signUp?.data?.let {
-                                AuthResponseData(
-                                    id = it.id,
-                                    name = it.name,
-                                    email = it.email,
-                                    token = it.token,
-                                    created = it.created,
-                                    updated = it.updated
-                                )
-                            },
-                            errorMessage = null
-                        )
+                    val authResponse = AuthResponse(
+                        data = response.data?.signUp?.data?.let {
+                            AuthResponseData(
+                                id = it.id,
+                                name = it.name,
+                                email = it.email,
+                                token = it.token,
+                                created = it.created,
+                                updated = it.updated
+                            )
+                        },
+                        errorMessage = null
                     )
+
+                    // Save user data to DataStore
+                    authResponse.data?.let { authData ->
+                        userPreferences.setUserData(authData.toUserSettings())
+                    }
+
+                    Result.success(authResponse)
                 }
 
                 else -> Result.error(
@@ -72,20 +85,26 @@ class AuthRepositoryImpl @Inject constructor(
                 }
 
                 response.data?.signIn?.data != null -> {
-                    Result.success(
-                        AuthResponse(
-                            data = response.data?.signIn?.data?.let {
-                                AuthResponseData(
-                                    id = it.id,
-                                    name = it.name, email = it.email,
-                                    token = it.token,
-                                    created = it.created,
-                                    updated = it.updated
-                                )
-                            },
-                            errorMessage = null
-                        )
+                    val authResponse = AuthResponse(
+                        data = response.data?.signIn?.data?.let {
+                            AuthResponseData(
+                                id = it.id,
+                                name = it.name,
+                                email = it.email,
+                                token = it.token,
+                                created = it.created,
+                                updated = it.updated
+                            )
+                        },
+                        errorMessage = null
                     )
+
+                    // Save user data to DataStore
+                    authResponse.data?.let { authData ->
+                        userPreferences.setUserData(authData.toUserSettings())
+                    }
+
+                    Result.success(authResponse)
                 }
 
                 else -> Result.error(
@@ -97,5 +116,15 @@ class AuthRepositoryImpl @Inject constructor(
         } catch (e: Exception) {
             Result.error(e)
         }
+    }
+
+    override suspend fun signOut() {
+        // Clear user data from DataStore
+        userPreferences.setUserData(UserSettings())
+    }
+
+    override suspend fun getUser(): Flow<User?> = flow {
+        val userData = userPreferences.getUserData()
+        emit(if (userData.token.isNotEmpty()) userData.toUser() else null)
     }
 }

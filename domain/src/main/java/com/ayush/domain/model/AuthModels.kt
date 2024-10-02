@@ -17,7 +17,8 @@ data class AuthResponseData(
 
 data class User(
     val id: String,
-    val username: String,
+    val name: String,
+    val token: String,
     val email: String,
     val created: String,
     val updated: String
