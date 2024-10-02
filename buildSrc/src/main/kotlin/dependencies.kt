@@ -31,7 +31,6 @@ object Dependencies {
     const val voyagerAnimation =  "cafe.adriel.voyager:voyager-transitions:${Versions.voyagerVersion}"
     const val voyagerTab =   "cafe.adriel.voyager:voyager-tab-navigator:${Versions.voyagerVersion}"
 
-
     //apollo
     const val apollo = "com.apollographql.apollo:apollo-runtime:${Versions.apollo}"
 

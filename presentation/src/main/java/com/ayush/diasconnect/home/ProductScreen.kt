@@ -58,6 +58,7 @@ class ProductScreen : Screen {
         val viewModel: ProductViewModel = hiltViewModel()
         val uiState by viewModel.uiState.collectAsState()
 
+        val name = "" // get name from main activity -> ContainerApp -> HomeTab -> ProductScreen
         ProductScreenContent(
             uiState = uiState,
             onProductClick = { /* TODO: Implement product click */ },
