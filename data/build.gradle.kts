@@ -47,7 +47,6 @@ android {
 
 dependencies {
     hilt()
-    domain()
     serialization()
     preferenceDataStore()
     apollo()

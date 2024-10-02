@@ -76,4 +76,5 @@ dependencies {
     data()
     serialization()
     voyagerNavigator()
+    domain()
 }

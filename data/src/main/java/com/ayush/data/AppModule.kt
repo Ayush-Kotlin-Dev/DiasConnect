@@ -2,6 +2,7 @@ package com.ayush.data
 
 import com.apollographql.apollo.ApolloClient
 import com.ayush.data.repository.AuthRepository
+import com.ayush.data.repository.ProductRepositoryImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -24,6 +25,12 @@ object AppModule {
     @Singleton
     fun provideAuthRepository(apolloClient: ApolloClient): AuthRepository {
         return AuthRepository(apolloClient)
+    }
+
+    @Provides
+    @Singleton
+    fun provideProductRepository(apolloClient: ApolloClient): ProductRepositoryImpl {
+        return ProductRepositoryImpl(apolloClient)
     }
 
 }

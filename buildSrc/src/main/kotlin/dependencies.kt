@@ -3,6 +3,7 @@ import org.gradle.kotlin.dsl.project
 
 
 object Dependencies {
+
     const val composeMaterial = "androidx.compose.material3:material3:${Versions.composeMaterial3}"
     const val composeUi = "androidx.compose.ui:ui:${Versions.compose}"
     const val composeUiGraphics = "androidx.compose.ui:ui-graphics:${Versions.compose}"

@@ -1,5 +1,7 @@
 type Query {
     getUser(id: ID!): User
+    products: [Product!]!
+
 }
 
 type Mutation {
@@ -27,4 +29,17 @@ type AuthResponseData {
     token: String!
     created: String!
     updated: String!
+}
+
+type Product {
+    id: ID!
+    name: String!
+    description: String!
+    price: Float!
+    stock: Int!
+    images: [String!]!
+    categoryId: ID!
+    sellerId: ID!
+    createdAt: String!
+    updatedAt: String!
 }
