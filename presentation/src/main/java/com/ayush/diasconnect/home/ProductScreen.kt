@@ -1,5 +1,6 @@
 package com.ayush.diasconnect.home
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -49,7 +50,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import coil.compose.AsyncImage
+import com.ayush.diasconnect.search.SearchScreen
 import com.ayush.domain.model.Product
 
 class ProductScreen : Screen {
@@ -57,12 +61,13 @@ class ProductScreen : Screen {
     override fun Content() {
         val viewModel: ProductViewModel = hiltViewModel()
         val uiState by viewModel.uiState.collectAsState()
-
-        val name = "" // get name from main activity -> ContainerApp -> HomeTab -> ProductScreen
+        val navigator = LocalNavigator.currentOrThrow
         ProductScreenContent(
             uiState = uiState,
             onProductClick = { /* TODO: Implement product click */ },
-            onSearchQueryChange = { /* TODO: Implement search */ },
+            onSearchClick = {
+                navigator.push(SearchScreen())
+            },
             onSeeAllFeaturedClick = { /* TODO: Implement see all featured */ },
             onSeeAllPopularClick = { /* TODO: Implement see all popular */ }
         )
@@ -73,7 +78,7 @@ class ProductScreen : Screen {
 fun ProductScreenContent(
     uiState: ProductsUiState,
     onProductClick: (Product) -> Unit,
-    onSearchQueryChange: (String) -> Unit,
+    onSearchClick: () -> Unit,
     onSeeAllFeaturedClick: () -> Unit,
     onSeeAllPopularClick: () -> Unit
 ) {
@@ -85,7 +90,7 @@ fun ProductScreenContent(
     ) {
         TopBar()
         Spacer(modifier = Modifier.height(16.dp))
-        SearchBar(onSearchQueryChange)
+        SearchBar(onSearchClick)
         Spacer(modifier = Modifier.height(24.dp))
         FeaturedProducts(uiState.featuredProducts, onProductClick, onSeeAllFeaturedClick)
         Spacer(modifier = Modifier.height(24.dp))
@@ -115,7 +120,7 @@ fun TopBar() {
                 Text("Hello!", style = MaterialTheme.typography.bodyMedium)
                 // TODO: Load user name from DataStore
                 Text(
-                    "John William",
+                    "Ayush",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
@@ -129,16 +134,15 @@ fun TopBar() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SearchBar(onSearchQueryChange: (String) -> Unit) {
+fun SearchBar(onSearchClick: () -> Unit) {
     var searchQuery by remember { mutableStateOf("") }
 
     OutlinedTextField(
         value = searchQuery,
         onValueChange = {
             searchQuery = it
-            onSearchQueryChange(it)
         },
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().clickable { onSearchClick() },
         placeholder = { Text("Search here", style = MaterialTheme.typography.bodyMedium) },
         leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
         singleLine = true,
@@ -151,7 +155,9 @@ fun SearchBar(onSearchQueryChange: (String) -> Unit) {
         ),
         keyboardOptions = KeyboardOptions.Default.copy(
             imeAction = androidx.compose.ui.text.input.ImeAction.Search
-        )
+        ),
+        readOnly = true,
+        enabled = false
     )
 }
 
