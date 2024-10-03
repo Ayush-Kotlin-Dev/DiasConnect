@@ -1,20 +1,27 @@
 package com.ayush.diasconnect.detail_screen
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import cafe.adriel.voyager.core.screen.Screen
@@ -23,9 +30,7 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import coil.compose.AsyncImage
 import com.ayush.domain.model.Product
 
-data class ProductDetailScreen(
-    val productId: String
-) : Screen {
+data class ProductDetailScreen(val productId: String) : Screen {
     @Composable
     override fun Content() {
         val viewModel: ProductDetailViewModel = hiltViewModel()
@@ -43,36 +48,8 @@ data class ProductDetailScreen(
 @Composable
 private fun ProductDetailContent(uiState: ProductDetailUiState) {
     val navigator = LocalNavigator.currentOrThrow
-    var isFavorite by remember { mutableStateOf(false) }
 
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { },
-                navigationIcon = {
-                    IconButton(onClick = { navigator.pop() }) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back",
-                            tint = Color.Black
-                        )
-                    }
-                },
-                actions = {
-                    IconButton(onClick = { isFavorite = !isFavorite }) {
-                        Icon(
-                            if (isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
-                            contentDescription = if (isFavorite) "Remove from favorites" else "Add to favorites",
-                            tint = if (isFavorite) Color.Red else Color.Black
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Transparent,
-                    titleContentColor = Color.Black
-                )
-            )
-        },
         bottomBar = {
             when (uiState) {
                 is ProductDetailUiState.Success -> {
@@ -92,7 +69,9 @@ private fun ProductDetailContent(uiState: ProductDetailUiState) {
                     CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                 }
                 is ProductDetailUiState.Success -> {
-                    ProductDetails(uiState.product)
+                    ProductDetails(uiState.product) {
+                        navigator.pop()
+                    }
                 }
                 is ProductDetailUiState.Error -> {
                     ErrorMessage(uiState.message)
@@ -104,26 +83,62 @@ private fun ProductDetailContent(uiState: ProductDetailUiState) {
 }
 
 @Composable
-private fun ProductDetails(product: Product) {
+private fun ProductDetails(product: Product, onBackClick: () -> Unit) {
+    var isFavorite by remember { mutableStateOf(false) }
+    var selectedSize by remember { mutableStateOf<String?>(null) }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
     ) {
-        // Product Image
-        AsyncImage(
-            model = product.images.firstOrNull(),
-            contentDescription = product.name,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(350.dp),
-            contentScale = ContentScale.Crop
-        )
+        Box(modifier = Modifier.fillMaxWidth()) {
+            AsyncImage(
+                model = product.images.firstOrNull(),
+                contentDescription = product.name,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(350.dp),
+                contentScale = ContentScale.Crop
+            )
 
-        // Product Details
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .statusBarsPadding()
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                IconButton(
+                    onClick = onBackClick,
+                    modifier = Modifier
+                        .size(40.dp)
+                        .background(Color.White.copy(alpha = 0.7f), CircleShape)
+                ) {
+                    Icon(
+                        Icons.Default.ArrowBack,
+                        contentDescription = "Back",
+                        tint = Color.Black
+                    )
+                }
+
+                IconButton(
+                    onClick = { isFavorite = !isFavorite },
+                    modifier = Modifier
+                        .size(40.dp)
+                        .background(Color.White.copy(alpha = 0.7f), CircleShape)
+                ) {
+                    Icon(
+                        if (isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                        contentDescription = if (isFavorite) "Remove from favorites" else "Add to favorites",
+                        tint = if (isFavorite) Color.Red else Color.Black
+                    )
+                }
+            }
+        }
+
         Column(
-            modifier = Modifier
-                .padding(16.dp)
+            modifier = Modifier.padding(16.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -145,15 +160,24 @@ private fun ProductDetails(product: Product) {
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Rating
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(vertical = 8.dp)
+            ) {
+                Icon(
+                    Icons.Default.Star,
+                    contentDescription = "Rating",
+                    tint = Color(0xFFFFB800),
+                    modifier = Modifier.size(20.dp)
+                )
                 Text(
                     text = "4.5",
                     style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Medium
+                    fontWeight = FontWeight.Medium,
+                    modifier = Modifier.padding(horizontal = 4.dp)
                 )
                 Text(
-                    text = " (20 Review)",
+                    text = "(20 Review)",
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.Gray
                 )
@@ -171,18 +195,22 @@ private fun ProductDetails(product: Product) {
             Spacer(modifier = Modifier.height(8.dp))
 
             // Size Options
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            LazyRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.padding(vertical = 8.dp)
             ) {
-                SizeOption("8")
-                SizeOption("10")
-                SizeOption("38")
-                SizeOption("40")
+                items(listOf("8", "10", "38", "40")) { size ->
+                    SizeOption(
+                        size = size,
+                        isSelected = selectedSize == size,
+                        onSelect = { selectedSize = size }
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Description
+            // Description Section
             Text(
                 text = "Description",
                 style = MaterialTheme.typography.titleLarge,
@@ -201,23 +229,27 @@ private fun ProductDetails(product: Product) {
 }
 
 @Composable
-private fun SizeOption(size: String) {
-    var isSelected by remember { mutableStateOf(false) }
-
+private fun SizeOption(
+    size: String,
+    isSelected: Boolean,
+    onSelect: () -> Unit
+) {
     Surface(
         modifier = Modifier
-            .width(48.dp)
-            .height(48.dp),
-        shape = MaterialTheme.shapes.medium,
-        color = if (isSelected) MaterialTheme.colorScheme.primary else Color.White,
-        border = BorderStroke(1.dp, if (isSelected) MaterialTheme.colorScheme.primary else Color.Gray),
-        onClick = { isSelected = !isSelected }
+            .size(48.dp)
+            .clip(MaterialTheme.shapes.medium),
+        onClick = onSelect,
+        color = if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent,
+        border = BorderStroke(1.dp, if (isSelected) MaterialTheme.colorScheme.primary else Color.Gray)
     ) {
-        Box(contentAlignment = Alignment.Center) {
+        Box(
+            contentAlignment = Alignment.Center
+        ) {
             Text(
                 text = size,
+                style = MaterialTheme.typography.bodyLarge,
                 color = if (isSelected) Color.White else Color.Black,
-                style = MaterialTheme.typography.bodyLarge
+                textAlign = TextAlign.Center
             )
         }
     }
@@ -233,13 +265,14 @@ private fun BottomBar(product: Product) {
         shadowElevation = 4.dp
     ) {
         Button(
-            onClick = { /* Handle buy now click */ }, //TODO Handle buy now click
+            onClick = { /* Handle buy now click */ },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.primary
-            )
+            ),
+            shape = MaterialTheme.shapes.medium
         ) {
             Text(
                 text = "Buy Now",
