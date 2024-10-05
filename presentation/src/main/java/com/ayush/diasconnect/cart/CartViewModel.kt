@@ -36,7 +36,7 @@ class CartViewModel : ViewModel() {
             name = "Watch",
             brand = "Rolex",
             price = 40.0,
-            imageUrl = "watch_image_url",
+            imageUrl = "https://avatars.githubusercontent.com/u/11629653?v=4",
             quantity = 2
         ),
         CartItem(
@@ -44,7 +44,7 @@ class CartViewModel : ViewModel() {
             name = "Airpods",
             brand = "Apple",
             price = 333.0,
-            imageUrl = "airpods_image_url",
+            imageUrl = "https://avatars.githubusercontent.com/u/11629653?v=4",
             quantity = 2
         ),
         CartItem(
@@ -52,7 +52,7 @@ class CartViewModel : ViewModel() {
             name = "Hoodie",
             brand = "Puma",
             price = 50.0,
-            imageUrl = "hoodie_image_url",
+            imageUrl = "https://avatars.githubusercontent.com/u/11629653?v=4",
             quantity = 2
         )
     )

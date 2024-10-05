@@ -6,8 +6,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabOptions
+import cafe.adriel.voyager.transitions.SlideTransition
+import com.ayush.diasconnect.cart.CartScreen
 
 class CartTab(
     private val onNavigator: (Boolean) -> Unit
@@ -29,6 +32,8 @@ class CartTab(
 
     @Composable
     override fun Content() {
-         Text(text = "Cart")
+         Navigator(screen = CartScreen()){Navigator ->
+             SlideTransition(navigator = Navigator)
+         }
     }
 }

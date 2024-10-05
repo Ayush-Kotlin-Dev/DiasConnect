@@ -18,6 +18,7 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -41,10 +42,9 @@ class ContainerApp : Screen {
     @Composable
     override fun Content() {
         val showBottomBar = remember { mutableStateOf(true) }
+        val initialTab = remember { HomeTab(onNavigator = { showBottomBar.value = it }) }
 
-        TabNavigator(HomeTab(
-            onNavigator = { showBottomBar.value = it }
-        )) { tabNavigator ->
+        TabNavigator(initialTab) { tabNavigator ->
             Scaffold(
                 content = { innerPadding ->
                     Box(modifier = Modifier.padding(innerPadding)) {
@@ -83,6 +83,7 @@ class ContainerApp : Screen {
 @Composable
 private fun RowScope.TabNavigationItem(tab: Tab) {
     val tabNavigator = LocalTabNavigator.current
+//    val selected = remember(tabNavigator.current) { tabNavigator.current::class == tab::class }
     val selected = tabNavigator.current == tab
 
     NavigationBarItem(
