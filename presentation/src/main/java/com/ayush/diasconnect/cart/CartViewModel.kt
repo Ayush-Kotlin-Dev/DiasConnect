@@ -33,7 +33,6 @@ data class CartUiState(
 @HiltViewModel
 class CartViewModel @Inject constructor(
     private val getActiveCartUseCase: GetActiveCartUseCase,
-    private val addItemToCartUseCase: AddItemToCartUseCase,
     private val updateCartItemQuantityUseCase: UpdateCartItemQuantityUseCase,
     private val removeCartItemUseCase: RemoveCartItemUseCase,
     private val clearCartUseCase: ClearCartUseCase,
@@ -55,8 +54,8 @@ class CartViewModel @Inject constructor(
         viewModelScope.launch {
             createOrGetCartUseCase(currentUserId).onSuccess { cartId ->
                 Log.d("CartViewModel", "Cart created: $cartId")
-            }.onFailure {
-                Log.d("CartViewModel", "Error: $it")
+            }.onError { error ->
+                Log.d("CartViewModel", "Error: $error")
             }
 
         }
@@ -74,8 +73,7 @@ class CartViewModel @Inject constructor(
                     error = null
                 )
             }
-        }.onFailure { error ->
-            Log.d("CartViewModel", "Error: $error")
+        }.onError { error ->
             _uiState.update { it.copy(isLoading = false, error = error.message) }
         }
     }

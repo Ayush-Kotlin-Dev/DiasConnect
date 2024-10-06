@@ -21,3 +21,18 @@ query GetCartByIdQuery($cartId: Long!) {
     userId
   }
 }
+mutation UpdateCartItemQuantityMutation( $cartItemId: Long!, $quantity: Int!) {
+    updateCartItemQuantity(cartItemId: $cartItemId, quantity: $quantity)
+}
+
+mutation removeCartItemMutation($cartItemId: Long!) {
+    removeCartItem(cartItemId: $cartItemId)
+}
+mutation addItemToCartMutation($cartId: Long!, $price : String! ,  $productId: Long!, $quantity: Int!) {
+    addItemToCart(
+    cartId: $cartId,
+     price: $price,
+     productId: $productId,
+     quantity: $quantity
+     )
+}

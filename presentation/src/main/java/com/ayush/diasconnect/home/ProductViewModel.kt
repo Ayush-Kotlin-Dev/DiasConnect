@@ -23,7 +23,7 @@ class ProductViewModel @Inject constructor(
     val uiState: StateFlow<ProductsUiState> = _uiState.asStateFlow()
 
     init {
-        loadProducts()
+        loadDummyProducts()
     }
 
     fun onEvent(event: ProductEvent) {
@@ -65,12 +65,12 @@ class ProductViewModel @Inject constructor(
             
             val dummyProducts = listOf(
                 Product(
-                    id = 1,
+                    id = 629361995648618496,
                     name = "Product 1",
                     description = "Description 1",
                     price = 100.0,
                     stock = 10,
-                    images = listOf("https://via.placeholder.com/150"),
+                    images = listOf("https://avatars.githubusercontent.com/u/1162963"),
                     categoryId = 1,
                     sellerId = 1,
                     createdAt = System.currentTimeMillis().toString(),

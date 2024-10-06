@@ -40,20 +40,27 @@ data class ProductDetailScreen(val productId: Long) : Screen {
             viewModel.loadProduct(productId)
         }
 
-        ProductDetailContent(uiState)
+        ProductDetailContent(uiState) { productId ->
+            viewModel.addItemToCart(productId)
+        }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ProductDetailContent(uiState: ProductDetailUiState) {
+private fun ProductDetailContent(
+    uiState: ProductDetailUiState,
+    onBackClick: (Long) -> Unit
+) {
     val navigator = LocalNavigator.currentOrThrow
 
     Scaffold(
         bottomBar = {
             when (uiState) {
                 is ProductDetailUiState.Success -> {
-                    BottomBar(uiState.product)
+                    BottomBar(uiState.product) {
+                        onBackClick(uiState.product.id)
+                    }
                 }
                 else -> {}
             }
@@ -256,7 +263,10 @@ private fun SizeOption(
 }
 
 @Composable
-private fun BottomBar(product: Product) {
+private fun BottomBar(
+    product: Product,
+    onBuyNowClick: (Long) -> Unit
+) {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -265,7 +275,7 @@ private fun BottomBar(product: Product) {
         shadowElevation = 4.dp
     ) {
         Button(
-            onClick = { /* Handle buy now click */ },
+            onClick = { onBuyNowClick(product.id) },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),
