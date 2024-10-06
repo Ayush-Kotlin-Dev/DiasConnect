@@ -1,0 +1,23 @@
+query GetCartByIdQuery($cartId: Long!) {
+  getCartById(cartId: $cartId) {
+    createdAt
+    currency
+    expiresAt
+    id
+    items {
+      cartId
+      createdAt
+      id
+      price
+      productDescription
+      productId
+      productName
+      quantity
+      updatedAt
+    }
+    status
+    total
+    updatedAt
+    userId
+  }
+}

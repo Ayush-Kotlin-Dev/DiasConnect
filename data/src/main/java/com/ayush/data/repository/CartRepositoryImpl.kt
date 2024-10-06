@@ -3,10 +3,11 @@ package com.ayush.data.repository
 import android.util.Log
 import com.apollographql.apollo.ApolloClient
 import com.ayush.data.GetCartByIdQuery
-
+import com.ayush.data.GetProductByIdQuery
 import com.ayush.domain.model.Cart
 import com.ayush.domain.model.CartItem
 import com.ayush.domain.model.CartStatus
+import com.ayush.domain.model.Product
 import com.ayush.domain.repository.CartRepository
 import javax.inject.Inject
 
@@ -21,42 +22,46 @@ class CartRepositoryImpl @Inject constructor(
         return try {
             val response = apolloClient.query(GetCartByIdQuery(cartId)).execute()
             val cartData = response.data?.getCartById
-            Log.d("CartRepositoryImpl", "Cart data: $cartData")
+
             if (cartData != null) {
+                val cartItems = cartData.items.map { item ->
+                    CartItem(
+                        id = item.id,
+                        cartId = cartId,
+                        productId = item.productId,
+                        quantity = item.quantity,
+                        price = item.price.toFloat(),
+                        productName = item.productName,
+                        productDescription = item.productDescription,
+                        createdAt = item.createdAt,
+                        updatedAt = item.updatedAt
+                    )
+                }
+
                 val cart = Cart(
                     id = cartData.id,
                     userId = cartData.userId,
-                    items = cartData.items.map { item ->
-                        CartItem(
-                            id = item.id,
-                            cartId = cartId,
-                            productId = item.productId,
-                            quantity = item.quantity,
-                            price = item.price,
-                            createdAt = "",
-                            updatedAt = ""
-                        )
-                    },
+                    items = cartItems,
                     status = CartStatus.valueOf(cartData.status.name),
-                    total = 0.0.toString(), // Assuming you have a way to calculate the total
-                    currency = "", // Assuming you have a way to get the currency
-                    createdAt = "", // Assuming you have a way to get these values
-                    updatedAt = "", // Assuming you have a way to get these values
-                    expiresAt = ""
+                    total = cartData.total.toFloat(),
+                    currency = cartData.currency,
+                    createdAt = cartData.createdAt,
+                    updatedAt = cartData.updatedAt,
+                    expiresAt = cartData.expiresAt
                 )
-                Log.d("CartRepositoryImpl", "Cart: $cart")
                 Result.success(cart)
             } else {
-                Log.d("CartRepositoryImpl", " Error Cart not found")
                 Result.failure(Exception("Cart not found"))
             }
         } catch (e: Exception) {
-            Log.e("CartRepositoryImpl", "Error: $e")
             Result.failure(e)
         }
+
+
+
     }
 
-    override suspend fun createOrGetCart(userId: String): Result<String> {
+    override suspend fun createOrGetCart(userId: Long): Result<String> {
         TODO("Not yet implemented")
     }
 

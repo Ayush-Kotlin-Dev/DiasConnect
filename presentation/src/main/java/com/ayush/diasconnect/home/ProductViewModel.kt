@@ -23,7 +23,7 @@ class ProductViewModel @Inject constructor(
     val uiState: StateFlow<ProductsUiState> = _uiState.asStateFlow()
 
     init {
-        loadDummyProducts()
+        loadProducts()
     }
 
     fun onEvent(event: ProductEvent) {
@@ -65,14 +65,14 @@ class ProductViewModel @Inject constructor(
             
             val dummyProducts = listOf(
                 Product(
-                    id = "1",
+                    id = 1,
                     name = "Product 1",
                     description = "Description 1",
                     price = 100.0,
                     stock = 10,
                     images = listOf("https://via.placeholder.com/150"),
-                    categoryId = "1",
-                    sellerId = "1",
+                    categoryId = 1,
+                    sellerId = 1,
                     createdAt = System.currentTimeMillis().toString(),
                     updatedAt = System.currentTimeMillis().toString(),
                 ),
@@ -88,7 +88,7 @@ class ProductViewModel @Inject constructor(
     }
 
 
-    private fun loadProductsByCategory(categoryId: String) {
+    private fun loadProductsByCategory(categoryId: Long) {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
             getProductsByCategoryUseCase(categoryId)
@@ -128,12 +128,12 @@ data class ProductsUiState(
     val popularProducts: List<Product> = emptyList(),
     val searchResults: List<Product> = emptyList(),
     val error: String? = null,
-    val selectedCategoryId: String? = null
+    val selectedCategoryId: Long? = null
 )
 
 sealed class ProductEvent {
     object LoadProducts : ProductEvent()
-    data class LoadProductsByCategory(val categoryId: String) : ProductEvent()
+    data class LoadProductsByCategory(val categoryId: Long) : ProductEvent()
     data class Search(val query: String) : ProductEvent()
     object ClearError : ProductEvent()
 }

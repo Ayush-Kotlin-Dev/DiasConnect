@@ -42,7 +42,7 @@ query GetProducts {
   }
 }
 
-query GetProductsByCategory($categoryId: String!) {
+query GetProductsByCategory($categoryId: Long!) {
   productsByCategory(categoryId: $categoryId) {
     id
     name
@@ -57,7 +57,7 @@ query GetProductsByCategory($categoryId: String!) {
   }
 }
 
-query GetProductByIdQuery($id: String!) {
+query GetProductByIdQuery($id: Long!) {
   product(id: $id) {
     id
     name
@@ -69,65 +69,5 @@ query GetProductByIdQuery($id: String!) {
     sellerId
     createdAt
     updatedAt
-  }
-}
-mutation CreateOrGetCart($userId: String!) {
-  createOrGetCart(userId: $userId)
-}
-
-mutation AddItemToCart($cartId: String!, $productId: String!, $quantity: Int!, $price: String!) {
-  addItemToCart(
-    cartId: $cartId
-    productId: $productId
-    quantity: $quantity
-    price: $price
-  )
-}
-
-mutation UpdateCartItemQuantity($cartItemId: Long!, $quantity: Int!) {
-  updateCartItemQuantity(
-    cartItemId: $cartItemId
-    quantity: $quantity
-  )
-}
-
-mutation RemoveCartItem($cartItemId: Long!) {
-  removeCartItem(cartItemId: $cartItemId)
-}
-mutation ClearCart($cartId: Long!) {
-  clearCart(cartId: $cartId)
-}
-
-mutation UpdateCartStatus($cartId: Long! , $status: CartStatus!) {
-  updateCartStatus(
-    cartId: $cartId
-    status: $status
-  )
-}
-query GetActiveCartByUserId($userId: Long!) {
-  getActiveCartByUserId(userId: $userId) {
-    id
-    userId
-    items {
-      id
-      productId
-      quantity
-      price
-    }
-    status
-  }
-}
-
-query GetCartById($cartId: Long!) {
-  getCartById(cartId: $cartId) {
-    id
-    userId
-    items {
-      id
-      productId
-      quantity
-      price
-    }
-    status
   }
 }

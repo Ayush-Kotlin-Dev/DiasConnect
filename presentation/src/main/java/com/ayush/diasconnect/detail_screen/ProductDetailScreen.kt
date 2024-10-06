@@ -30,7 +30,7 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import coil.compose.AsyncImage
 import com.ayush.domain.model.Product
 
-data class ProductDetailScreen(val productId: String) : Screen {
+data class ProductDetailScreen(val productId: Long) : Screen {
     @Composable
     override fun Content() {
         val viewModel: ProductDetailViewModel = hiltViewModel()

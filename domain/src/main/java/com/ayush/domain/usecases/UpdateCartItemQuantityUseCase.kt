@@ -7,7 +7,7 @@ import javax.inject.Inject
 class UpdateCartItemQuantityUseCase @Inject constructor(
     private val cartRepository: CartRepository
 ) {
-    suspend operator fun invoke(cartItemId: String, quantity: Int): Result<Boolean> {
-        return cartRepository.updateCartItemQuantity(cartItemId.toLong(), quantity)
+    suspend operator fun invoke(cartItemId: Long, quantity: Int): Result<Boolean> {
+        return cartRepository.updateCartItemQuantity(cartItemId, quantity)
     }
 }

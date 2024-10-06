@@ -30,7 +30,7 @@ class ProductRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getProductsByCategory(categoryId: String): Result<List<Product>> {
+    override suspend fun getProductsByCategory(categoryId: Long): Result<List<Product>> {
         return try {
             val response = apolloClient.query(GetProductsByCategoryQuery(categoryId)).execute()
             when {
@@ -47,7 +47,7 @@ class ProductRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getProductById(productId: String): Result<Product> {
+    override suspend fun getProductById(productId: Long): Result<Product> {
         return try {
             val response = apolloClient.query(GetProductByIdQuery(productId)).execute()
             when {

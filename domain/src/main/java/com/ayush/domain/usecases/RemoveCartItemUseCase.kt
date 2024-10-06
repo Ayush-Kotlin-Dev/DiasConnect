@@ -7,7 +7,7 @@ import javax.inject.Inject
 class RemoveCartItemUseCase @Inject constructor(
     private val cartRepository: CartRepository
 ) {
-    suspend operator fun invoke(cartItemId: String): Result<Boolean> {
-        return cartRepository.removeCartItem(cartItemId.toLong())
+    suspend operator fun invoke(cartItemId: Long): Result<Boolean> {
+        return cartRepository.removeCartItem(cartItemId)
     }
 }

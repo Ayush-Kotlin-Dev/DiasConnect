@@ -17,11 +17,11 @@ class SearchViewModel @Inject constructor() : ViewModel() {
     val uiState: StateFlow<SearchUiState> = _uiState
 
     private val dummyProducts = listOf(
-        Product(id = "1", name = "Smartphone", price = 599.99, stock = 10, description = "A very nice smartphone", images = emptyList(), categoryId = "1", sellerId = "1", createdAt = "", updatedAt = ""),
-        Product(id = "2", name = "Laptop", price = 1299.99, stock = 5, description = "A very nice laptop", images = emptyList(), categoryId = "2", sellerId = "1", createdAt = "", updatedAt = ""),
-        Product(id = "3", name = "Tablet", price = 399.99, stock = 3, description = "A very nice tablet", images = emptyList(), categoryId = "3", sellerId = "1", createdAt = "", updatedAt = ""),
-        Product(id = "4", name = "Smartwatch", price = 199.99, stock = 7, description = "A very nice smartwatch", images = emptyList(), categoryId = "4", sellerId = "1", createdAt = "", updatedAt = ""),
-        Product(id = "5", name = "Headphones", price = 99.99, stock = 15, description = "A very nice headphones", images = emptyList(), categoryId = "5", sellerId = "1", createdAt = "", updatedAt = "")
+        Product(id = 1, name = "Smartphone", price = 599.99, stock = 10, description = "A very nice smartphone", images = emptyList(), categoryId = 1, sellerId = 1, createdAt = "", updatedAt = ""),
+        Product(id = 2, name = "Laptop", price = 1299.99, stock = 5, description = "A very nice laptop", images = emptyList(), categoryId = 2, sellerId = 1, createdAt = "", updatedAt = ""),
+        Product(id = 3, name = "Tablet", price = 399.99, stock = 3, description = "A very nice tablet", images = emptyList(), categoryId = 3, sellerId = 1, createdAt = "", updatedAt = ""),
+        Product(id = 4, name = "Smartwatch", price = 199.99, stock = 7, description = "A very nice smartwatch", images = emptyList(), categoryId = 4, sellerId = 1, createdAt = "", updatedAt = ""),
+        Product(id = 5, name = "Headphones", price = 99.99, stock = 15, description = "A very nice headphones", images = emptyList(), categoryId = 5, sellerId = 1, createdAt = "", updatedAt = "")
 
     )
 

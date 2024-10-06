@@ -5,7 +5,7 @@ import com.ayush.domain.model.Result
 
 interface ProductRepository {
     suspend fun getProducts(): Result<List<Product>>
-    suspend fun getProductsByCategory(categoryId: String): Result<List<Product>>
-    suspend fun getProductById(productId: String): Result<Product>
+    suspend fun getProductsByCategory(categoryId: Long): Result<List<Product>>
+    suspend fun getProductById(productId: Long): Result<Product>
 
 }

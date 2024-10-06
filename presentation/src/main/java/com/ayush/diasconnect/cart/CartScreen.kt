@@ -101,9 +101,9 @@ private fun CartHeader(onNavigateBack: () -> Unit) {
 @Composable
 private fun CartItems(
     items: List<CartItem>,
-    onIncreaseQuantity: (String) -> Unit,
-    onDecreaseQuantity: (String) -> Unit,
-    onRemoveItem: (String) -> Unit
+    onIncreaseQuantity: (Long) -> Unit,
+    onDecreaseQuantity: (Long) -> Unit,
+    onRemoveItem: (Long) -> Unit
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxWidth(),
@@ -112,9 +112,9 @@ private fun CartItems(
         items(items) { item ->
             CartItemRow(
                 item = item,
-                onIncreaseQuantity = { onIncreaseQuantity(item.id.toString()) },
-                onDecreaseQuantity = { onDecreaseQuantity(item.id.toString()) },
-                onRemoveItem = { onRemoveItem(item.id.toString()) }
+                onIncreaseQuantity = { onIncreaseQuantity(item.id) },
+                onDecreaseQuantity = { onDecreaseQuantity(item.id) },
+                onRemoveItem = { onRemoveItem(item.id) }
             )
         }
     }
@@ -139,21 +139,21 @@ private fun CartItemRow(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-//            AsyncImage(
-//                model = item.imageUrl,
-//                contentDescription = item.name,
-//                modifier = Modifier
-//                    .size(60.dp)
-//                    .clip(RoundedCornerShape(8.dp))
-//            )
+            AsyncImage(
+                model = "https://source.unsplash.com/random/60x60",
+                contentDescription = item.productName,
+                modifier = Modifier
+                    .size(60.dp)
+                    .clip(RoundedCornerShape(8.dp))
+            )
 
             Column(
                 modifier = Modifier
                     .weight(1f)
                     .padding(horizontal = 8.dp)
             ) {
-//                Text(text = item.name, style = MaterialTheme.typography.bodyMedium)
-//                Text(text = item.name, style = MaterialTheme.typography.bodySmall)
+                Text(text = item.productName , style = MaterialTheme.typography.bodyMedium)
+                Text(text = item.productName, style = MaterialTheme.typography.bodySmall)
                 Text(
                     text = "Rs ${item.price}",
                     style = MaterialTheme.typography.bodyMedium,
@@ -208,7 +208,7 @@ private fun CartItemRow(
 
 @Composable
 private fun CheckoutButton(
-    totalAmount: Double,
+    totalAmount: Float,
     onClick: () -> Unit
 ) {
     Button(

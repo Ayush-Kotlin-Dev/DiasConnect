@@ -8,7 +8,7 @@ import com.ayush.domain.model.Result
 class GetProductByIdUseCase @Inject constructor(
     private val productRepository: ProductRepository
 ) {
-    suspend operator fun invoke(productId: String): Result<Product> {
+    suspend operator fun invoke(productId: Long): Result<Product> {
         return productRepository.getProductById(productId)
     }
 }

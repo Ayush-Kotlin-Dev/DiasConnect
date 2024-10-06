@@ -8,7 +8,7 @@ import javax.inject.Inject
 class GetProductsByCategoryUseCase @Inject constructor(
     private val productRepository: ProductRepository
 ) {
-    suspend operator fun invoke(categoryId: String): Result<List<Product>> {
+    suspend operator fun invoke(categoryId: Long): Result<List<Product>> {
         return productRepository.getProductsByCategory(categoryId)
     }
 }

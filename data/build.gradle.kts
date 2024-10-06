@@ -14,6 +14,7 @@ apollo {
 //            headers.put("api-key", "1234567890abcdef")
             schemaFile.set(file("src/main/graphql/com/ayush/data/schema.graphqls"))
         }
+        mapScalar("Long", "kotlin.Long")
     }
 }
 android {

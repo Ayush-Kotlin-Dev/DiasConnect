@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ayush.domain.model.CartItem
+import com.ayush.domain.model.Product
 import com.ayush.domain.usecases.AddItemToCartUseCase
 import com.ayush.domain.usecases.ClearCartUseCase
 import com.ayush.domain.usecases.CreateOrGetCartUseCase
@@ -22,9 +23,9 @@ import javax.inject.Inject
 
 
 data class CartUiState(
-    val cartId: String = "",
+    val cartId: Long = 0,
     val items: List<CartItem> = emptyList(),
-    val totalAmount: Double = 0.0,
+    val totalAmount: Float = 0f,
     val isLoading: Boolean = false,
     val error: String? = null
 )
@@ -43,7 +44,7 @@ class CartViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(CartUiState())
     val uiState: StateFlow<CartUiState> = _uiState.asStateFlow()
 
-    private var currentUserId: String = "1"
+    private var currentUserId: Long = 1
 
     init {
         viewModelScope.launch {
@@ -66,9 +67,9 @@ class CartViewModel @Inject constructor(
             Log.d("CartViewModel", "Cart: $cart")
             _uiState.update {
                 it.copy(
-                    cartId = cart.id.toString(),
+                    cartId = cart.id,
                     items = cart.items.map { domainItem -> domainItem.toCartItem() },
-                    totalAmount = 0.0, // Calculate the total amount
+                    totalAmount = cart.total,
                     isLoading = false,
                     error = null
                 )
@@ -79,7 +80,7 @@ class CartViewModel @Inject constructor(
         }
     }
 
-    fun onIncreaseQuantity(itemId: String) {
+    fun onIncreaseQuantity(itemId: Long) {
         viewModelScope.launch {
             val item = _uiState.value.items.find { it.id == itemId } ?: return@launch
             updateCartItemQuantityUseCase(itemId, item.quantity + 1).onSuccess {
@@ -88,7 +89,7 @@ class CartViewModel @Inject constructor(
         }
     }
 
-    fun onDecreaseQuantity(itemId: String) {
+    fun onDecreaseQuantity(itemId: Long) {
         viewModelScope.launch {
             val item = _uiState.value.items.find { it.id == itemId } ?: return@launch
             if (item.quantity > 1) {
@@ -101,7 +102,7 @@ class CartViewModel @Inject constructor(
         }
     }
 
-    fun onRemoveItem(itemId: String) {
+    fun onRemoveItem(itemId: Long) {
         viewModelScope.launch {
             removeCartItemUseCase(itemId).onSuccess {
                 loadActiveCart()
@@ -122,14 +123,16 @@ class CartViewModel @Inject constructor(
     }
 }
 
-private fun  CartItem.toCartItem(): CartItem {
+private fun CartItem.toCartItem(): CartItem {
     return CartItem(
-        id = id,
-        productId = productId,
-        quantity = quantity,
-        price = price,
-        createdAt = createdAt,
-        updatedAt = updatedAt,
-        cartId = cartId
+        id = this.id,
+        cartId = this.cartId,
+        productId = this.productId,
+        quantity = this.quantity,
+        price = this.price,
+        productName = this.productName,
+        productDescription = this.productDescription,
+        createdAt = this.createdAt,
+        updatedAt = this.updatedAt
     )
 }
