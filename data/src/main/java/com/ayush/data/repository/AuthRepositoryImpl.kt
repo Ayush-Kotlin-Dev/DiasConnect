@@ -1,5 +1,6 @@
 package com.ayush.data.repository
 
+import android.util.Log
 import com.apollographql.apollo.ApolloClient
 import com.ayush.data.SignInMutation
 import com.ayush.data.SignUpMutation
@@ -44,13 +45,14 @@ class AuthRepositoryImpl @Inject constructor(
                                 email = it.email,
                                 token = it.token,
                                 created = it.created,
-                                updated = it.updated
+                                updated = it.updated,
+                                cartId = it.cartId
                             )
                         },
                         errorMessage = null
                     )
+                    Log.d("AuthRepositoryImpl", "Sign up response: ${authResponse.data?.cartId}")
 
-                    // Save user data to DataStore
                     authResponse.data?.let { authData ->
                         userPreferences.setUserData(authData.toUserSettings())
                     }
@@ -93,13 +95,13 @@ class AuthRepositoryImpl @Inject constructor(
                                 email = it.email,
                                 token = it.token,
                                 created = it.created,
-                                updated = it.updated
+                                updated = it.updated,
+                                cartId = it.cartId
                             )
                         },
                         errorMessage = null
                     )
 
-                    // Save user data to DataStore
                     authResponse.data?.let { authData ->
                         userPreferences.setUserData(authData.toUserSettings())
                     }

@@ -9,7 +9,7 @@ import com.ayush.domain.model.Result
 class GetCartByIdUseCase @Inject constructor(
     private val cartRepository: CartRepository
 ) {
-    suspend operator fun invoke(cartId: Long): Result<Cart> {
-        return cartRepository.getCartById(cartId)
+    suspend operator fun invoke(): Result<Cart> {
+        return cartRepository.getCartById()
     }
 }

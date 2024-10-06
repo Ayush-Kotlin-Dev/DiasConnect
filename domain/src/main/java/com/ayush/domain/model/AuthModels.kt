@@ -12,7 +12,8 @@ data class AuthResponseData(
     val email: String,
     val token: String,
     val created: String,
-    val updated: String
+    val updated: String,
+    val cartId: String
 )
 
 data class User(
@@ -21,5 +22,6 @@ data class User(
     val token: String,
     val email: String,
     val created: String,
-    val updated: String
+    val updated: String,
+    val cartId: String
 )

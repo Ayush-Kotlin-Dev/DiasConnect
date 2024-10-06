@@ -62,7 +62,7 @@ class CartViewModel @Inject constructor(
     }
     private suspend fun loadActiveCart() {
         _uiState.update { it.copy(isLoading = true) }
-        getCartByIdUseCase(1).onSuccess { cart ->
+        getCartByIdUseCase().onSuccess { cart ->
             Log.d("CartViewModel", "Cart: $cart")
             _uiState.update {
                 it.copy(

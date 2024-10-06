@@ -3,9 +3,11 @@ package com.ayush.data.di
 import com.ayush.data.repository.AuthRepositoryImpl
 import com.ayush.data.repository.CartRepositoryImpl
 import com.ayush.data.repository.ProductRepositoryImpl
+import com.ayush.data.repository.ProfileRepoImpl
 import com.ayush.domain.repository.AuthRepository
 import com.ayush.domain.repository.CartRepository
 import com.ayush.domain.repository.ProductRepository
+import com.ayush.domain.repository.ProfileRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -32,5 +34,12 @@ object RepositoryModule {
     @Singleton
     fun provideCartRepository(cartRepositoryImpl: CartRepositoryImpl): CartRepository {
         return cartRepositoryImpl
+    }
+
+    @Provides
+    @Singleton
+    fun provideProfileRepository(profileRepoImpl: ProfileRepoImpl):
+            ProfileRepository {
+        return profileRepoImpl
     }
 }

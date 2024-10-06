@@ -11,7 +11,8 @@ data class UserSettings(
     val email: String = "",
     val token: String = "",
     val created: String = "",
-    val updated: String = ""
+    val updated: String = "",
+    val cartId : String = ""
 )
 
 fun UserSettings.toUser(): User {
@@ -21,7 +22,8 @@ fun UserSettings.toUser(): User {
         email = email,
         token = token,
         created = created,
-        updated = updated
+        updated = updated,
+        cartId = cartId
     )
 }
 
@@ -32,6 +34,7 @@ fun AuthResponseData.toUserSettings(): UserSettings {
         email = email,
         token = token,
         created = created,
-        updated = updated
+        updated = updated,
+        cartId = cartId
     )
 }

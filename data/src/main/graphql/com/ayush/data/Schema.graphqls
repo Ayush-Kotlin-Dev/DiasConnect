@@ -5,6 +5,8 @@ type AuthResponse {
 }
 
 type AuthResponseData {
+  cartId: String!
+
   created: String!
 
   email: String!
@@ -67,7 +69,7 @@ enum CartStatus {
 }
 
 """
-Long type
+A custom scalar that handles long integers
 """
 scalar Long
 

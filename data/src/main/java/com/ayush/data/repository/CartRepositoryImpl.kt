@@ -1,6 +1,7 @@
 package com.ayush.data.repository
 
 import android.util.Log
+import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import com.apollographql.apollo.ApolloClient
 import com.ayush.data.AddItemToCartMutation
@@ -8,6 +9,8 @@ import com.ayush.data.GetCartByIdQuery
 import com.ayush.data.GetProductByIdQuery
 import com.ayush.data.RemoveCartItemMutation
 import com.ayush.data.UpdateCartItemQuantityMutation
+import com.ayush.data.datastore.UserPreferences
+import com.ayush.data.datastore.UserSettings
 import com.ayush.domain.model.Cart
 import com.ayush.domain.model.CartItem
 import com.ayush.domain.model.CartStatus
@@ -15,25 +18,29 @@ import com.ayush.domain.model.Product
 import com.ayush.domain.repository.CartRepository
 import javax.inject.Inject
 import com.ayush.domain.model.Result
+import kotlinx.coroutines.flow.first
 
 class CartRepositoryImpl @Inject constructor(
     private val apolloClient: ApolloClient,
-//    private val dataStore: Preferences
+    private val dataStore: UserPreferences
+
 ): CartRepository {
     override suspend fun getActiveCartByUserId(userId: Long): Result<Cart> {
         TODO("Not yet implemented")
     }
 
-    override suspend fun getCartById(cartId: Long): Result<Cart> {
+    override suspend fun getCartById(): Result<Cart> {
         return try {
-            val response = apolloClient.query(GetCartByIdQuery(cartId)).execute()
+            val cartId = dataStore.getUserData().cartId
+            Log.d("CartRepositoryImpl", "Getting cart by ID: $cartId")
+            val response = apolloClient.query(GetCartByIdQuery(cartId.toLong())).execute()
             val cartData = response.data?.getCartById
 
             if (cartData != null) {
                 val cartItems = cartData.items.map { item ->
                     CartItem(
                         id = item.id,
-                        cartId = cartId,
+                        cartId = cartId.toLong(),
                         productId = item.productId,
                         quantity = item.quantity,
                         price = item.price.toFloat(),
@@ -60,6 +67,7 @@ class CartRepositoryImpl @Inject constructor(
                 Result.error(Exception("Failed to get cart"))
             }
         } catch (e: Exception) {
+            Log.e("CartRepositoryImpl", "Error getting cart by ID", e)
             Result.error(e)
         }
 
@@ -73,12 +81,12 @@ class CartRepositoryImpl @Inject constructor(
     }
 
     override suspend fun addItemToCart(
-        cartId: Long,
         productId: Long,
         quantity: Int,
         price: String
     ): Result<Long> {
         return try {
+            val cartId = dataStore.getUserData().cartId.toLong()
             Log.d("CartRepositoryImpl", "Adding item to cart with cartId: $cartId, productId: $productId, quantity: $quantity, price: $price")
             val response = apolloClient.mutation(AddItemToCartMutation(cartId, price, productId, quantity)).execute()
             val cartItemId = response.data?.addItemToCart

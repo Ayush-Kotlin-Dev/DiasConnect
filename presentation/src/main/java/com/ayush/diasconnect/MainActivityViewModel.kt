@@ -26,7 +26,7 @@ class MainActivityViewModel @Inject constructor(
         viewModelScope.launch {
             val data = userPreferences.getUserData()
             _uiState.value = if (data.token.isNotEmpty() && data.id.toLong() != -1L) {
-                UiState.LoggedIn(User(token = data.token, id = data.id , name = data.name , email = data.email , created = data.created , updated = data.updated))
+                UiState.LoggedIn(User(token = data.token, id = data.id , name = data.name , email = data.email , created = data.created , updated = data.updated , cartId = data.cartId))
             } else {
                 UiState.LoggedOut
             }

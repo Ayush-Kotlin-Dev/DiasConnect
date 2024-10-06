@@ -51,8 +51,7 @@ class ProductDetailViewModel @Inject constructor(
     fun addItemToCart(productId: Long, quantity: Int = 1) {
         viewModelScope.launch {
             _addToCartState.value = AddToCartState.Loading
-            val userId = 1L // Hardcoded for now
-            when (val result = addItemToCartUseCase(userId, productId, quantity, 69.6)) {
+            when (val result = addItemToCartUseCase( productId, quantity, 69.6)) {
                 is Result.Success -> {
                     _addToCartState.value = AddToCartState.Success(result.data)
                 }

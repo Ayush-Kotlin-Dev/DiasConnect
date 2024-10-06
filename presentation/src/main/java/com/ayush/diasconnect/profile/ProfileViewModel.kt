@@ -12,7 +12,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
-    private val userPreferences: UserPreferences
+    private val userPreferences: UserPreferences,
 ) : ViewModel() {
 
     private val _profileState = MutableStateFlow(ProfileState())
@@ -27,7 +27,8 @@ class ProfileViewModel @Inject constructor(
             val user = userPreferences.getUserData()
             _profileState.value = ProfileState(
                 name = user.name,
-                email = user.email
+                email = user.email,
+                cartId = user.cartId
             )
         }
     }
@@ -35,5 +36,6 @@ class ProfileViewModel @Inject constructor(
 
 data class ProfileState(
     val name: String = "",
-    val email: String = ""
+    val email: String = "",
+    val cartId : String = ""
 )

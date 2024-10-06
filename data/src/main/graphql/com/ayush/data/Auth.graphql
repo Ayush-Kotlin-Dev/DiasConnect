@@ -7,6 +7,7 @@ mutation SignUp($name: String!, $email: String!, $password: String!) {
             token
             created
             updated
+            cartId
         }
         errorMessage
     }
@@ -21,6 +22,7 @@ mutation SignIn($email: String!, $password: String!) {
             token
             created
             updated
+            cartId
         }
         errorMessage
     }
