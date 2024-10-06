@@ -23,7 +23,7 @@ class ProductViewModel @Inject constructor(
     val uiState: StateFlow<ProductsUiState> = _uiState.asStateFlow()
 
     init {
-        loadProducts()
+        loadDummyProducts()
     }
 
     fun onEvent(event: ProductEvent) {
@@ -56,6 +56,37 @@ class ProductViewModel @Inject constructor(
                 }
         }
     }
+    private fun loadDummyProducts() {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true, error = null) }
+            
+            // Simulate network delay
+            kotlinx.coroutines.delay(1000)
+            
+            val dummyProducts = listOf(
+                Product(
+                    id = "1",
+                    name = "Product 1",
+                    description = "Description 1",
+                    price = 100.0,
+                    stock = 10,
+                    images = listOf("https://via.placeholder.com/150"),
+                    categoryId = "1",
+                    sellerId = "1",
+                    createdAt = System.currentTimeMillis().toString(),
+                    updatedAt = System.currentTimeMillis().toString(),
+                ),
+                )
+            _uiState.update { it.copy(
+                isLoading = false,
+                allProducts = dummyProducts,
+                featuredProducts = dummyProducts.take(3),
+                popularProducts = dummyProducts.takeLast(3),
+                selectedCategoryId = null
+            ) }
+        }
+    }
+
 
     private fun loadProductsByCategory(categoryId: String) {
         viewModelScope.launch {

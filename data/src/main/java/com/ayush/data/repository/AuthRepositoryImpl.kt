@@ -1,8 +1,8 @@
 package com.ayush.data.repository
 
 import com.apollographql.apollo.ApolloClient
-import com.ayush.SignInMutation
-import com.ayush.SignUpMutation
+import com.ayush.data.SignInMutation
+import com.ayush.data.SignUpMutation
 import com.ayush.data.datastore.UserPreferences
 import com.ayush.data.datastore.UserSettings
 import com.ayush.data.datastore.toUser

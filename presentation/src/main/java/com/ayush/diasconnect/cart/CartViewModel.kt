@@ -1,128 +1,135 @@
 package com.ayush.diasconnect.cart
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.delay
+import com.ayush.domain.model.CartItem
+import com.ayush.domain.usecases.AddItemToCartUseCase
+import com.ayush.domain.usecases.ClearCartUseCase
+import com.ayush.domain.usecases.CreateOrGetCartUseCase
+import com.ayush.domain.usecases.GetActiveCartUseCase
+import com.ayush.domain.usecases.GetCartByIdUseCase
+import com.ayush.domain.usecases.RemoveCartItemUseCase
+import com.ayush.domain.usecases.UpdateCartItemQuantityUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-// CartItem.kt
-data class CartItem(
-    val id: String,
-    val name: String,
-    val brand: String,
-    val price: Double,
-    val imageUrl: String,
-    var quantity: Int = 0
-)
 
-// CartUiState.kt
+
 data class CartUiState(
+    val cartId: String = "",
     val items: List<CartItem> = emptyList(),
+    val totalAmount: Double = 0.0,
     val isLoading: Boolean = false,
-    val error: String? = null,
-    val totalAmount: Double = 0.0
+    val error: String? = null
 )
 
-class CartViewModel : ViewModel() {
+@HiltViewModel
+class CartViewModel @Inject constructor(
+    private val getActiveCartUseCase: GetActiveCartUseCase,
+    private val addItemToCartUseCase: AddItemToCartUseCase,
+    private val updateCartItemQuantityUseCase: UpdateCartItemQuantityUseCase,
+    private val removeCartItemUseCase: RemoveCartItemUseCase,
+    private val clearCartUseCase: ClearCartUseCase,
+    private val getCartByIdUseCase: GetCartByIdUseCase,
+    private val createOrGetCartUseCase: CreateOrGetCartUseCase
+) : ViewModel() {
+
     private val _uiState = MutableStateFlow(CartUiState())
     val uiState: StateFlow<CartUiState> = _uiState.asStateFlow()
 
-    private val dummyItems = listOf(
-        CartItem(
-            id = "1",
-            name = "Watch",
-            brand = "Rolex",
-            price = 40.0,
-            imageUrl = "https://avatars.githubusercontent.com/u/11629653?v=4",
-            quantity = 2
-        ),
-        CartItem(
-            id = "2",
-            name = "Airpods",
-            brand = "Apple",
-            price = 333.0,
-            imageUrl = "https://avatars.githubusercontent.com/u/11629653?v=4",
-            quantity = 2
-        ),
-        CartItem(
-            id = "3",
-            name = "Hoodie",
-            brand = "Puma",
-            price = 50.0,
-            imageUrl = "https://avatars.githubusercontent.com/u/11629653?v=4",
-            quantity = 2
-        )
-    )
+    private var currentUserId: String = "1"
 
     init {
-        loadCartItems()
-    }
-
-    private fun loadCartItems() {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true)
-            try {
-                // TODO: Replace with actual API call
-                delay(500) // Simulate network delay
-                _uiState.value = _uiState.value.copy(
-                    items = dummyItems,
-                    isLoading = false,
-                    totalAmount = calculateTotal(dummyItems)
-                )
-            } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(
-                    isLoading = false,
-                    error = e.message
-                )
-            }
+            loadActiveCart()
         }
     }
+    private fun createCart() {
+        viewModelScope.launch {
+            createOrGetCartUseCase(currentUserId).onSuccess { cartId ->
+                Log.d("CartViewModel", "Cart created: $cartId")
+            }.onFailure {
+                Log.d("CartViewModel", "Error: $it")
+            }
 
-    private fun calculateTotal(items: List<CartItem>): Double {
-        return items.sumOf { it.price * it.quantity }
+        }
+    }
+    private suspend fun loadActiveCart() {
+        _uiState.update { it.copy(isLoading = true) }
+        getCartByIdUseCase(1).onSuccess { cart ->
+            Log.d("CartViewModel", "Cart: $cart")
+            _uiState.update {
+                it.copy(
+                    cartId = cart.id.toString(),
+                    items = cart.items.map { domainItem -> domainItem.toCartItem() },
+                    totalAmount = 0.0, // Calculate the total amount
+                    isLoading = false,
+                    error = null
+                )
+            }
+        }.onFailure { error ->
+            Log.d("CartViewModel", "Error: $error")
+            _uiState.update { it.copy(isLoading = false, error = error.message) }
+        }
     }
 
     fun onIncreaseQuantity(itemId: String) {
-        // TODO: Implement increase quantity logic
-        val updatedItems = _uiState.value.items.map { item ->
-            if (item.id == itemId) {
-                item.copy(quantity = item.quantity + 1)
-            } else {
-                item
+        viewModelScope.launch {
+            val item = _uiState.value.items.find { it.id == itemId } ?: return@launch
+            updateCartItemQuantityUseCase(itemId, item.quantity + 1).onSuccess {
+                loadActiveCart()
             }
         }
-        updateItems(updatedItems)
     }
 
     fun onDecreaseQuantity(itemId: String) {
-        // TODO: Implement decrease quantity logic
-        val updatedItems = _uiState.value.items.map { item ->
-            if (item.id == itemId && item.quantity > 0) {
-                item.copy(quantity = item.quantity - 1)
+        viewModelScope.launch {
+            val item = _uiState.value.items.find { it.id == itemId } ?: return@launch
+            if (item.quantity > 1) {
+                updateCartItemQuantityUseCase(itemId, item.quantity - 1).onSuccess {
+                    loadActiveCart()
+                }
             } else {
-                item
+                onRemoveItem(itemId)
             }
         }
-        updateItems(updatedItems)
     }
 
     fun onRemoveItem(itemId: String) {
-        // TODO: Implement remove item logic
-        val updatedItems = _uiState.value.items.filter { it.id != itemId }
-        updateItems(updatedItems)
+        viewModelScope.launch {
+            removeCartItemUseCase(itemId).onSuccess {
+                loadActiveCart()
+            }
+        }
     }
 
     fun onCheckoutClick() {
-        // TODO: Implement checkout logic
+        // Implement checkout logic
     }
 
-    private fun updateItems(items: List<CartItem>) {
-        _uiState.value = _uiState.value.copy(
-            items = items,
-            totalAmount = calculateTotal(items)
-        )
+    fun onClearCart() {
+        viewModelScope.launch {
+            clearCartUseCase(_uiState.value.cartId).onSuccess {
+                loadActiveCart()
+            }
+        }
     }
+}
+
+private fun  CartItem.toCartItem(): CartItem {
+    return CartItem(
+        id = id,
+        productId = productId,
+        quantity = quantity,
+        price = price,
+        createdAt = createdAt,
+        updatedAt = updatedAt,
+        cartId = cartId
+    )
 }

@@ -8,7 +8,7 @@ plugins {
 }
 apollo {
     service("service") {
-        packageName.set("com.ayush")
+        packageName.set("com.ayush.data")
         introspection {
             endpointUrl.set("https://diasconnect-buyer-backend.onrender.com/graphql")
 //            headers.put("api-key", "1234567890abcdef")

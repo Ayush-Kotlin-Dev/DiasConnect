@@ -42,15 +42,11 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import coil.compose.AsyncImage
 import com.ayush.diasconnect.R
+import com.ayush.domain.model.CartItem
 import java.util.Locale
 
 
-// CartScreen.kt
 class CartScreen: Screen {
-
-
-
-
     @Composable
     override fun Content() {
         val  viewModel: CartViewModel = hiltViewModel()
@@ -116,9 +112,9 @@ private fun CartItems(
         items(items) { item ->
             CartItemRow(
                 item = item,
-                onIncreaseQuantity = { onIncreaseQuantity(item.id) },
-                onDecreaseQuantity = { onDecreaseQuantity(item.id) },
-                onRemoveItem = { onRemoveItem(item.id) }
+                onIncreaseQuantity = { onIncreaseQuantity(item.id.toString()) },
+                onDecreaseQuantity = { onDecreaseQuantity(item.id.toString()) },
+                onRemoveItem = { onRemoveItem(item.id.toString()) }
             )
         }
     }
@@ -143,21 +139,21 @@ private fun CartItemRow(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            AsyncImage(
-                model = item.imageUrl,
-                contentDescription = item.name,
-                modifier = Modifier
-                    .size(60.dp)
-                    .clip(RoundedCornerShape(8.dp))
-            )
+//            AsyncImage(
+//                model = item.imageUrl,
+//                contentDescription = item.name,
+//                modifier = Modifier
+//                    .size(60.dp)
+//                    .clip(RoundedCornerShape(8.dp))
+//            )
 
             Column(
                 modifier = Modifier
                     .weight(1f)
                     .padding(horizontal = 8.dp)
             ) {
-                Text(text = item.name, style = MaterialTheme.typography.bodyMedium)
-                Text(text = item.brand, style = MaterialTheme.typography.bodySmall)
+//                Text(text = item.name, style = MaterialTheme.typography.bodyMedium)
+//                Text(text = item.name, style = MaterialTheme.typography.bodySmall)
                 Text(
                     text = "Rs ${item.price}",
                     style = MaterialTheme.typography.bodyMedium,

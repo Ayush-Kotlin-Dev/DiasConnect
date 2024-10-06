@@ -1,9 +1,10 @@
 package com.ayush.data.repository
 
 import com.apollographql.apollo.ApolloClient
-import com.ayush.GetProductByIdQuery
-import com.ayush.GetProductsByCategoryQuery
-import com.ayush.GetProductsQuery
+import com.ayush.data.GetProductByIdQuery
+import com.ayush.data.GetProductsByCategoryQuery
+import com.ayush.data.GetProductsQuery
+
 import com.ayush.domain.model.Product
 import com.ayush.domain.repository.ProductRepository
 import com.ayush.domain.model.Result

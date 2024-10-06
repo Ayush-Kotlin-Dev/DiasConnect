@@ -26,13 +26,6 @@ mutation SignIn($email: String!, $password: String!) {
     }
 }
 
-query GetUser($id: ID!) {
-    getUser(id: $id) {
-        id
-        username
-        email
-    }
-}
 
 query GetProducts {
   products {
@@ -49,7 +42,7 @@ query GetProducts {
   }
 }
 
-query GetProductsByCategory($categoryId: ID!) {
+query GetProductsByCategory($categoryId: String!) {
   productsByCategory(categoryId: $categoryId) {
     id
     name
@@ -76,5 +69,65 @@ query GetProductByIdQuery($id: String!) {
     sellerId
     createdAt
     updatedAt
+  }
+}
+mutation CreateOrGetCart($userId: String!) {
+  createOrGetCart(userId: $userId)
+}
+
+mutation AddItemToCart($cartId: String!, $productId: String!, $quantity: Int!, $price: String!) {
+  addItemToCart(
+    cartId: $cartId
+    productId: $productId
+    quantity: $quantity
+    price: $price
+  )
+}
+
+mutation UpdateCartItemQuantity($cartItemId: Long!, $quantity: Int!) {
+  updateCartItemQuantity(
+    cartItemId: $cartItemId
+    quantity: $quantity
+  )
+}
+
+mutation RemoveCartItem($cartItemId: Long!) {
+  removeCartItem(cartItemId: $cartItemId)
+}
+mutation ClearCart($cartId: Long!) {
+  clearCart(cartId: $cartId)
+}
+
+mutation UpdateCartStatus($cartId: Long! , $status: CartStatus!) {
+  updateCartStatus(
+    cartId: $cartId
+    status: $status
+  )
+}
+query GetActiveCartByUserId($userId: Long!) {
+  getActiveCartByUserId(userId: $userId) {
+    id
+    userId
+    items {
+      id
+      productId
+      quantity
+      price
+    }
+    status
+  }
+}
+
+query GetCartById($cartId: Long!) {
+  getCartById(cartId: $cartId) {
+    id
+    userId
+    items {
+      id
+      productId
+      quantity
+      price
+    }
+    status
   }
 }
