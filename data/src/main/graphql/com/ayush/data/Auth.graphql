@@ -73,3 +73,19 @@ query GetProductByIdQuery($id: Long!) {
     updatedAt
   }
 }
+
+
+query SearchProducts($query: String!) {
+  searchProducts(query: $query) {
+    id
+    categoryId
+    createdAt
+    description
+    images
+    name
+    sellerId
+    price
+    updatedAt
+    stock
+  }
+}

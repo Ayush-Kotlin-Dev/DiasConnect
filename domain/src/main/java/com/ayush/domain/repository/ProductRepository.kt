@@ -7,5 +7,6 @@ interface ProductRepository {
     suspend fun getProducts(): Result<List<Product>>
     suspend fun getProductsByCategory(categoryId: Long): Result<List<Product>>
     suspend fun getProductById(productId: Long): Result<Product>
+    suspend fun searchProducts(query: String): Result<List<Product>>
 
 }

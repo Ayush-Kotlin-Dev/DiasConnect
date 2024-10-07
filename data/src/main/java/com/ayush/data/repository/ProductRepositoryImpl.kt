@@ -4,6 +4,7 @@ import com.apollographql.apollo.ApolloClient
 import com.ayush.data.GetProductByIdQuery
 import com.ayush.data.GetProductsByCategoryQuery
 import com.ayush.data.GetProductsQuery
+import com.ayush.data.SearchProductsQuery
 
 import com.ayush.domain.model.Product
 import com.ayush.domain.repository.ProductRepository
@@ -66,6 +67,37 @@ class ProductRepositoryImpl @Inject constructor(
         } catch (e: Exception) {
             Result.error(e)
         }
+    }
+
+    override suspend fun searchProducts(query: String): Result<List<Product>> {
+        return try {
+            val response = apolloClient.query(SearchProductsQuery(query)).execute()
+            when {
+                response.hasErrors() -> {
+                    Result.error(Exception(response.errors?.first()?.message))
+                }
+                else -> {
+                    val products = response.data?.searchProducts?.map { it.toProduct() } ?: emptyList()
+                    Result.success(products)
+                }
+            }
+        } catch (e: Exception) {
+            Result.error(e)
+        }
+    }
+    private fun SearchProductsQuery.SearchProduct.toProduct(): Product {
+        return Product(
+            id = this.id,
+            name = this.name,
+            description = this.description,
+            price = this.price,
+            stock = this.stock,
+            images = this.images,
+            categoryId = this.categoryId,
+            sellerId = this.sellerId,
+            createdAt = this.createdAt,
+            updatedAt = this.updatedAt
+        )
     }
 
     private fun GetProductsQuery.Product.toProduct(): Product {
