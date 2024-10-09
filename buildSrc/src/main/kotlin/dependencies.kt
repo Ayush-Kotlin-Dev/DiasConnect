@@ -34,6 +34,9 @@ object Dependencies {
     //apollo
     const val apollo = "com.apollographql.apollo:apollo-runtime:${Versions.apollo}"
 
+    //Lottie
+    const val lottie = "com.airbnb.android:lottie-compose:${Versions.lottie}"
+
 
 
 }
@@ -83,6 +86,10 @@ fun DependencyHandler.voyagerNavigator() {
     implementation(Dependencies.voyagerNavigator)
     implementation(Dependencies.voyagerAnimation)
     implementation(Dependencies.voyagerTab)
+}
+
+fun DependencyHandler.lottie() {
+    implementation(Dependencies.lottie)
 }
 
 

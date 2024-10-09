@@ -18,6 +18,6 @@ object Versions {
     const val preferencesDatastore = "1.1.1"
     const val voyagerVersion = "1.1.0-beta02"
     const val apollo = "4.0.0"
-
+    const val lottie = "6.5.2"
 
 }

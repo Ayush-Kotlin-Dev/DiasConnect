@@ -77,4 +77,5 @@ dependencies {
     serialization()
     voyagerNavigator()
     domain()
+    lottie()
 }
