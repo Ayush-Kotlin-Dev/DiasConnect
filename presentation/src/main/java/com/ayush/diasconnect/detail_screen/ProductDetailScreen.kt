@@ -40,8 +40,8 @@ data class ProductDetailScreen(val productId: Long) : Screen {
             viewModel.loadProduct(productId)
         }
 
-        ProductDetailContent(uiState) { productId ->
-            viewModel.addItemToCart(productId)
+        ProductDetailContent(uiState) { productId , price ->
+            viewModel.addItemToCart(productId , price)
         }
     }
 }
@@ -50,7 +50,7 @@ data class ProductDetailScreen(val productId: Long) : Screen {
 @Composable
 private fun ProductDetailContent(
     uiState: ProductDetailUiState,
-    onBackClick: (Long) -> Unit
+    onBackClick: (Long , Double ) -> Unit
 ) {
     val navigator = LocalNavigator.currentOrThrow
 
@@ -59,7 +59,7 @@ private fun ProductDetailContent(
             when (uiState) {
                 is ProductDetailUiState.Success -> {
                     BottomBar(uiState.product) {
-                        onBackClick(uiState.product.id)
+                        onBackClick(uiState.product.id , uiState.product.price)
                     }
                 }
                 else -> {}

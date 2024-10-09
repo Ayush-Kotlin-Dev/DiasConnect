@@ -4,10 +4,14 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ayush.domain.model.CartItem
+import com.ayush.domain.model.CreateOrderInput
+import com.ayush.domain.model.CreateOrderItemInput
+import com.ayush.domain.model.Order
 import com.ayush.domain.model.Product
 import com.ayush.domain.usecases.AddItemToCartUseCase
 import com.ayush.domain.usecases.ClearCartUseCase
 import com.ayush.domain.usecases.CreateOrGetCartUseCase
+import com.ayush.domain.usecases.CreateOrderUseCase
 import com.ayush.domain.usecases.GetActiveCartUseCase
 import com.ayush.domain.usecases.GetCartByIdUseCase
 import com.ayush.domain.usecases.RemoveCartItemUseCase
@@ -19,6 +23,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import com.ayush.domain.model.Result
 
 
 
@@ -27,9 +32,16 @@ data class CartUiState(
     val items: List<CartItem> = emptyList(),
     val totalAmount: Float = 0f,
     val isLoading: Boolean = false,
-    val error: String? = null
-)
+    val error: String? = null,
 
+)
+sealed class CheckoutState {
+    object Idle : CheckoutState()
+    object CollectingInfo : CheckoutState()
+    object Processing : CheckoutState()
+    data class Success(val order: Order) : CheckoutState()
+    data class Error(val message: String) : CheckoutState()
+}
 @HiltViewModel
 class CartViewModel @Inject constructor(
     private val getActiveCartUseCase: GetActiveCartUseCase,
@@ -37,11 +49,16 @@ class CartViewModel @Inject constructor(
     private val removeCartItemUseCase: RemoveCartItemUseCase,
     private val clearCartUseCase: ClearCartUseCase,
     private val getCartByIdUseCase: GetCartByIdUseCase,
-    private val createOrGetCartUseCase: CreateOrGetCartUseCase
-) : ViewModel() {
+    private val createOrGetCartUseCase: CreateOrGetCartUseCase,
+    private val createOrderUseCase: CreateOrderUseCase,
+
+    ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(CartUiState())
     val uiState: StateFlow<CartUiState> = _uiState.asStateFlow()
+
+    private val _checkoutState = MutableStateFlow<CheckoutState>(CheckoutState.Idle)
+    val checkoutState: StateFlow<CheckoutState> = _checkoutState.asStateFlow()
 
     private var currentUserId: Long = 1
 
@@ -109,8 +126,9 @@ class CartViewModel @Inject constructor(
     }
 
     fun onCheckoutClick() {
-        // Implement checkout logic
+        _checkoutState.value = CheckoutState.CollectingInfo
     }
+
 
     fun onClearCart() {
         viewModelScope.launch {
@@ -119,6 +137,40 @@ class CartViewModel @Inject constructor(
             }
         }
     }
+
+    fun onSubmitOrderInfo(name: String, shippingAddress: String) {
+        viewModelScope.launch {
+            _checkoutState.value = CheckoutState.Processing
+            val input = CreateOrderInput(
+                items = _uiState.value.items.map {
+                    CreateOrderItemInput(
+                        productId = it.productId,
+                        quantity = it.quantity,
+                        price = it.price.toString()
+                    )
+                },
+                paymentMethod = "CASH_ON_DELIVERY", //  TODO()  want to make this dynamic
+                shippingAddress = shippingAddress,
+                total = _uiState.value.totalAmount.toString()
+            )
+            when (val result = createOrderUseCase(input)) {
+                is Result.Success -> {
+                    _checkoutState.value = CheckoutState.Success(result.data)
+                    // Clear cart or perform any other necessary actions
+                }
+                is Result.Error -> {
+                    _checkoutState.value = CheckoutState.Error(result.exception.message ?: "Unknown error occurred")
+                }
+
+                Result.Loading -> TODO()
+            }
+        }
+
+    }
+    fun resetCheckoutState() {
+        _checkoutState.value = CheckoutState.Idle
+    }
+
 }
 
 private fun CartItem.toCartItem(): CartItem {

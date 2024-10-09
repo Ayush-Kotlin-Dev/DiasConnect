@@ -34,6 +34,7 @@ class ProfileScreen
                 .fillMaxSize()
                 .padding(16.dp)
         ) {
+
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -75,6 +76,11 @@ class ProfileScreen
             )
 
             ProfileMenuItem(
+                icon = R.drawable.ic_orders,
+                title = "Orders"
+            )
+
+            ProfileMenuItem(
                 icon = Icons.Outlined.Settings,
                 title = "Setting"
             )
@@ -112,7 +118,7 @@ class ProfileScreen
 
 @Composable
 private fun ProfileMenuItem(
-    icon: ImageVector,
+    icon: Any,
     title: String,
     onClick: () -> Unit = {}
 ) {
@@ -126,11 +132,20 @@ private fun ProfileMenuItem(
                 .padding(vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            when (icon) {
+                is ImageVector -> Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                is Int -> Icon(
+                    painter = painterResource(id = icon),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(20.dp)
+
+                )
+            }
 
             Text(
                 text = title,

@@ -1,0 +1,17 @@
+mutation CreateOrder($userId: Long!, $input: CreateOrderInput!) {
+  createOrder(userId: $userId, input: $input) {
+    createdAt
+    currency
+    id
+    status
+    total
+    updatedAt
+    userId
+    items {
+      id
+      price
+      productId
+      quantity
+    }
+  }
+}

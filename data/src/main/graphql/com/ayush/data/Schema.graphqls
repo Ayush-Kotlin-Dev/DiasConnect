@@ -69,7 +69,20 @@ enum CartStatus {
 }
 
 """
-A custom scalar that handles long integers
+Input for creating an order
+"""
+input CreateOrderInput {
+  items: [OrderItemInput!]!
+
+  paymentMethod: String!
+
+  shippingAddress: String!
+
+  total: String!
+}
+
+"""
+A custom scalar that handles long integers as strings to preserve precision
 """
 scalar Long
 
@@ -107,6 +120,66 @@ type Mutation {
   Update the status of a cart
   """
   updateCartStatus(cartId: Long!, status: CartStatus!): Boolean!
+
+  createOrder(userId: Long!, input: CreateOrderInput!): OrderType!
+}
+
+input OrderItemInput {
+  price: String!
+
+  productId: Long!
+
+  quantity: Int!
+}
+
+"""
+Order item details
+"""
+type OrderItemType {
+  id: Long!
+
+  price: String!
+
+  productId: Long!
+
+  quantity: Int!
+}
+
+enum OrderStatus {
+  PENDING
+
+  PROCESSING
+
+  SHIPPED
+
+  DELIVERED
+
+  CANCELLED
+}
+
+"""
+Order details
+"""
+type OrderType {
+  createdAt: String!
+
+  currency: String!
+
+  id: Long!
+
+  items: [OrderItemType!]!
+
+  paymentMethod: String!
+
+  shippingAddress: String!
+
+  status: OrderStatus!
+
+  total: Float!
+
+  updatedAt: String!
+
+  userId: Long!
 }
 
 type Product {
@@ -151,6 +224,10 @@ type Query {
   Get a cart by its ID
   """
   getCartById(cartId: Long!): Cart
+
+  getOrderDetails(orderId: Long!): OrderType
+
+  getUserOrders(userId: Long!): [OrderType!]!
 }
 
 type User {

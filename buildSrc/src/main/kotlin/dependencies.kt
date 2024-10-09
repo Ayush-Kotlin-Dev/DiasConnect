@@ -3,7 +3,7 @@ import org.gradle.kotlin.dsl.project
 
 
 object Dependencies {
-
+    //Kotlin stdlib
     const val composeMaterial = "androidx.compose.material3:material3:${Versions.composeMaterial3}"
     const val composeUi = "androidx.compose.ui:ui:${Versions.compose}"
     const val composeUiGraphics = "androidx.compose.ui:ui-graphics:${Versions.compose}"
@@ -11,7 +11,7 @@ object Dependencies {
     const val composeUiToolingPreview = "androidx.compose.ui:ui-tooling-preview:${Versions.compose}"
     const val composeRuntime = "androidx.compose.runtime:runtime:${Versions.compose}"
 
-
+    //Hilt DI
     const val hiltAndroid = "com.google.dagger:hilt-android:${Versions.hilt}"
     const val hiltCompiler = "com.google.dagger:hilt-android-compiler:${Versions.hilt}"
     const val hiltAgp = "com.google.dagger:hilt-android-gradle-plugin:${Versions.hilt}"
@@ -26,7 +26,7 @@ object Dependencies {
     // Preferences Datastore
     const val preferencesDatastore = "androidx.datastore:datastore-preferences:${Versions.preferencesDatastore}"
 
-    //Voyager Navigator
+    //Voyager Navigator & Tab
     const val voyagerNavigator = "cafe.adriel.voyager:voyager-navigator:${Versions.voyagerVersion}"
     const val voyagerAnimation =  "cafe.adriel.voyager:voyager-transitions:${Versions.voyagerVersion}"
     const val voyagerTab =   "cafe.adriel.voyager:voyager-tab-navigator:${Versions.voyagerVersion}"
