@@ -17,9 +17,8 @@ import javax.inject.Inject
 @HiltViewModel
 class ProductDetailViewModel @Inject constructor(
     private val getProductByIdUseCase: GetProductByIdUseCase,
-    private val addItemToCartUseCase: AddItemToCartUseCase,
-
-    ) : ViewModel() {
+    private val addItemToCartUseCase: AddItemToCartUseCase
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow<ProductDetailUiState>(ProductDetailUiState.Initial)
     val uiState: StateFlow<ProductDetailUiState> = _uiState.asStateFlow()
@@ -30,43 +29,33 @@ class ProductDetailViewModel @Inject constructor(
     fun loadProduct(productId: Long) {
         viewModelScope.launch {
             _uiState.value = ProductDetailUiState.Loading
-            when (val result = getProductByIdUseCase(productId)) {
-                is Result.Success -> {
-                    _uiState.value = ProductDetailUiState.Success(result.data)
+            getProductByIdUseCase(productId).fold(
+                onSuccess = { product ->
+                    _uiState.value = ProductDetailUiState.Success(product)
+                },
+                onFailure = { error ->
+                    _uiState.value = ProductDetailUiState.Error(error.message ?: "An unknown error occurred")
                 }
-
-                is Result.Error -> {
-                    _uiState.value = ProductDetailUiState.Error(
-                        result.exception.message ?: "An unknown error occurred"
-                    )
-                }
-
-                Result.Loading -> {
-                    // Do nothing
-                }
-            }
+            )
         }
     }
 
-    fun addItemToCart(productId: Long, price : Double, quantity: Int = 1) {
+    fun addItemToCart(productId: Long, price: Double, quantity: Int = 1) {
         viewModelScope.launch {
             _addToCartState.value = AddToCartState.Loading
-            when (val result = addItemToCartUseCase( productId, quantity, price)) {
-                is Result.Success -> {
-                    _addToCartState.value = AddToCartState.Success(result.data)
+            addItemToCartUseCase(productId, quantity, price).fold(
+                onSuccess = { cartItemId ->
+                    _addToCartState.value = AddToCartState.Success(cartItemId)
+                },
+                onFailure = { error ->
+                    _addToCartState.value = AddToCartState.Error(error.message ?: "An unknown error occurred")
                 }
-
-                is Result.Error -> {
-                    _addToCartState.value = AddToCartState.Error(
-                        result.exception.message ?: "An unknown error occurred"
-                    )
-                }
-
-                Result.Loading -> {
-                    // Do nothing, already handled
-                }
-            }
+            )
         }
+    }
+
+    fun resetAddToCartState() {
+        _addToCartState.value = AddToCartState.Initial
     }
 }
 
@@ -80,6 +69,6 @@ sealed class ProductDetailUiState {
 sealed class AddToCartState {
     object Initial : AddToCartState()
     object Loading : AddToCartState()
-    data class Success(val cartItem: Long) : AddToCartState()
+    data class Success(val cartItemId: Long) : AddToCartState()
     data class Error(val message: String) : AddToCartState()
 }
