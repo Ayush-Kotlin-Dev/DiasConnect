@@ -29,28 +29,26 @@ class ProductDetailViewModel @Inject constructor(
     fun loadProduct(productId: Long) {
         viewModelScope.launch {
             _uiState.value = ProductDetailUiState.Loading
-            getProductByIdUseCase(productId).fold(
-                onSuccess = { product ->
+            getProductByIdUseCase(productId)
+                .onSuccess { product ->
                     _uiState.value = ProductDetailUiState.Success(product)
-                },
-                onFailure = { error ->
+                }
+                .onError { error ->
                     _uiState.value = ProductDetailUiState.Error(error.message ?: "An unknown error occurred")
                 }
-            )
         }
     }
 
     fun addItemToCart(productId: Long, price: Double, quantity: Int = 1) {
         viewModelScope.launch {
             _addToCartState.value = AddToCartState.Loading
-            addItemToCartUseCase(productId, quantity, price).fold(
-                onSuccess = { cartItemId ->
+            addItemToCartUseCase(productId, quantity, price)
+                .onSuccess { cartItemId ->
                     _addToCartState.value = AddToCartState.Success(cartItemId)
-                },
-                onFailure = { error ->
+                }
+                .onError { error ->
                     _addToCartState.value = AddToCartState.Error(error.message ?: "An unknown error occurred")
                 }
-            )
         }
     }
 
