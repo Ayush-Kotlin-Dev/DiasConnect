@@ -12,55 +12,55 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import cafe.adriel.voyager.core.screen.Screen
 import dagger.hilt.android.lifecycle.HiltViewModel
 
-data class Order(val id: String, val items: List<String>, val totalAmount: Double, val status: String)
-
-class OrdersScreen : Screen {
-    @OptIn(ExperimentalStdlibApi::class)
-    @Composable
-    override fun Content() {
-        val viewModel : OrdersViewModel = hiltViewModel()
-        val orders by viewModel.orders.collectAsState()
-
-        Scaffold(
-            topBar = {
-
-            }
-        ) { paddingValues ->
-            OrdersList(orders = orders, modifier = Modifier.padding(paddingValues))
-        }
-    }
-}
-
-@Composable
-fun OrdersList(orders: List<Order>, modifier: Modifier = Modifier) {
-    if (orders.isEmpty()) {
-        Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Text("No orders found")
-        }
-    } else {
-        LazyColumn(modifier = modifier) {
-            items(orders) { order ->
-                OrderCard(order)
-            }
-        }
-    }
-}
-
-@Composable
-fun OrderCard(order: Order) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(text = "Order #${order.id}", style = MaterialTheme.typography.titleMedium)
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(text = "Items: ${order.items.joinToString(", ")}")
-            Text(text = "Total: $${order.totalAmount}")
-            Text(text = "Status: ${order.status}")
-        }
-    }
-}
-
+//data class Order(val id: String, val items: List<String>, val totalAmount: Double, val status: String)
+//
+//class OrdersScreen : Screen {
+//    @OptIn(ExperimentalStdlibApi::class)
+//    @Composable
+//    override fun Content() {
+//        val viewModel : OrdersViewModel = hiltViewModel()
+//        val orders by viewModel.orders.collectAsState()
+//
+//        Scaffold(
+//            topBar = {
+//
+//            }
+//        ) { paddingValues ->
+//            OrdersList(orders = orders, modifier = Modifier.padding(paddingValues))
+//        }
+//    }
+//}
+//
+//@Composable
+//fun OrdersList(orders: List<Order>, modifier: Modifier = Modifier) {
+//    if (orders.isEmpty()) {
+//        Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+//            Text("No orders found")
+//        }
+//    } else {
+//        LazyColumn(modifier = modifier) {
+//            items(orders) { order ->
+//                OrderCard(order)
+//            }
+//        }
+//    }
+//}
+//
+//@Composable
+//fun OrderCard(order: Order) {
+//    Card(
+//        modifier = Modifier
+//            .fillMaxWidth()
+//            .padding(8.dp),
+//        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+//    ) {
+//        Column(modifier = Modifier.padding(16.dp)) {
+//            Text(text = "Order #${order.id}", style = MaterialTheme.typography.titleMedium)
+//            Spacer(modifier = Modifier.height(8.dp))
+//            Text(text = "Items: ${order.items.joinToString(", ")}")
+//            Text(text = "Total: $${order.totalAmount}")
+//            Text(text = "Status: ${order.status}")
+//        }
+//    }
+//}
+//

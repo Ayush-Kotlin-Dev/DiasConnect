@@ -1,6 +1,9 @@
 package com.ayush.diasconnect.cart
 
 import android.util.Log
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ayush.domain.model.CartItem
@@ -51,8 +54,7 @@ class CartViewModel @Inject constructor(
     private val getCartByIdUseCase: GetCartByIdUseCase,
     private val createOrGetCartUseCase: CreateOrGetCartUseCase,
     private val createOrderUseCase: CreateOrderUseCase,
-
-    ) : ViewModel() {
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(CartUiState())
     val uiState: StateFlow<CartUiState> = _uiState.asStateFlow()
@@ -60,81 +62,62 @@ class CartViewModel @Inject constructor(
     private val _checkoutState = MutableStateFlow<CheckoutState>(CheckoutState.Idle)
     val checkoutState: StateFlow<CheckoutState> = _checkoutState.asStateFlow()
 
-    private var currentUserId: Long = 1
+    var showBottomSheet by mutableStateOf(false)
+        private set
 
     init {
-        viewModelScope.launch {
-            loadActiveCart()
-        }
-    }
-    private fun createCart() {
-        viewModelScope.launch {
-            createOrGetCartUseCase(currentUserId).onSuccess { cartId ->
-                Log.d("CartViewModel", "Cart created: $cartId")
-            }.onError { error ->
-                Log.d("CartViewModel", "Error: $error")
-            }
-
-        }
-    }
-    private suspend fun loadActiveCart() {
-        _uiState.update { it.copy(isLoading = true) }
-        getCartByIdUseCase().onSuccess { cart ->
-            Log.d("CartViewModel", "Cart: $cart")
-            _uiState.update {
-                it.copy(
-                    cartId = cart.id,
-                    items = cart.items.map { domainItem -> domainItem.toCartItem() },
-                    totalAmount = cart.total,
-                    isLoading = false,
-                    error = null
-                )
-            }
-        }.onError { error ->
-            _uiState.update { it.copy(isLoading = false, error = error.message) }
-        }
+        loadActiveCart()
     }
 
-    fun onIncreaseQuantity(itemId: Long) {
+    fun loadActiveCart() {
         viewModelScope.launch {
-            val item = _uiState.value.items.find { it.id == itemId } ?: return@launch
-            updateCartItemQuantityUseCase(itemId, item.quantity + 1).onSuccess {
-                loadActiveCart()
-            }
-        }
-    }
-
-    fun onDecreaseQuantity(itemId: Long) {
-        viewModelScope.launch {
-            val item = _uiState.value.items.find { it.id == itemId } ?: return@launch
-            if (item.quantity > 1) {
-                updateCartItemQuantityUseCase(itemId, item.quantity - 1).onSuccess {
-                    loadActiveCart()
+            _uiState.update { it.copy(isLoading = true) }
+            getCartByIdUseCase().onSuccess { cart ->
+                _uiState.update {
+                    it.copy(
+                        cartId = cart.id,
+                        items = cart.items,
+                        totalAmount = cart.total,
+                        isLoading = false,
+                        error = null
+                    )
                 }
-            } else {
+            }.onError { error ->
+                _uiState.update { it.copy(isLoading = false, error = error.message) }
+            }
+        }
+    }
+
+    fun onIncreaseQuantity(itemId: Long) = updateQuantity(itemId, 1)
+    fun onDecreaseQuantity(itemId: Long) = updateQuantity(itemId, -1)
+
+    private fun updateQuantity(itemId: Long, change: Int) {
+        viewModelScope.launch {
+            val item = _uiState.value.items.find { it.id == itemId } ?: return@launch
+            val newQuantity = (item.quantity + change).coerceAtLeast(0)
+            if (newQuantity == 0) {
                 onRemoveItem(itemId)
+            } else {
+                updateCartItemQuantityUseCase(itemId, newQuantity)
+                    .onSuccess { loadActiveCart() }
             }
         }
     }
 
     fun onRemoveItem(itemId: Long) {
         viewModelScope.launch {
-            removeCartItemUseCase(itemId).onSuccess {
-                loadActiveCart()
-            }
+            removeCartItemUseCase(itemId).onSuccess { loadActiveCart() }
         }
     }
 
     fun onCheckoutClick() {
         _checkoutState.value = CheckoutState.CollectingInfo
+        showBottomSheet = true
     }
-
 
     fun onClearCart() {
         viewModelScope.launch {
-            clearCartUseCase(_uiState.value.cartId).onSuccess {
-                loadActiveCart()
-            }
+            clearCartUseCase(_uiState.value.cartId).onSuccess { loadActiveCart() }
         }
     }
 
@@ -149,28 +132,24 @@ class CartViewModel @Inject constructor(
                         price = it.price.toString()
                     )
                 },
-                paymentMethod = "CASH_ON_DELIVERY", //  TODO()  want to make this dynamic
+                paymentMethod = "CASH_ON_DELIVERY",
                 shippingAddress = shippingAddress,
                 total = _uiState.value.totalAmount.toString()
             )
-            when (val result = createOrderUseCase(input)) {
-                is Result.Success -> {
-                    _checkoutState.value = CheckoutState.Success(result.data)
-                    // Clear cart or perform any other necessary actions
-                }
-                is Result.Error -> {
-                    _checkoutState.value = CheckoutState.Error(result.exception.message ?: "Unknown error occurred")
-                }
-
-                Result.Loading -> TODO()
+            createOrderUseCase(input).onSuccess { order ->
+                _checkoutState.value = CheckoutState.Success(order)
+                showBottomSheet = false
+                onClearCart()
+            }.onError { error ->
+                _checkoutState.value = CheckoutState.Error(error.message ?: "Unknown error occurred")
             }
         }
-
     }
+
     fun resetCheckoutState() {
         _checkoutState.value = CheckoutState.Idle
+        showBottomSheet = false
     }
-
 }
 
 private fun CartItem.toCartItem(): CartItem {

@@ -118,7 +118,7 @@ private fun RowScope.TabNavigationItem(tab: Tab) {
         colors = NavigationBarItemDefaults.colors(
             selectedIconColor = Color.Red,
             unselectedIconColor = Color.Gray,
-            indicatorColor = Color.Transparent
+            indicatorColor = Color.Transparent,
         ),
         alwaysShowLabel = false
     )
