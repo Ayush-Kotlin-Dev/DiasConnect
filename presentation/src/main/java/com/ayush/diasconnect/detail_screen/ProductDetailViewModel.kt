@@ -11,9 +11,9 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-
 @HiltViewModel
 class ProductDetailViewModel @Inject constructor(
     private val getProductByIdUseCase: GetProductByIdUseCase,
@@ -22,9 +22,6 @@ class ProductDetailViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow<ProductDetailUiState>(ProductDetailUiState.Initial)
     val uiState: StateFlow<ProductDetailUiState> = _uiState.asStateFlow()
-
-    private val _addToCartState = MutableStateFlow<AddToCartState>(AddToCartState.Initial)
-    val addToCartState: StateFlow<AddToCartState> = _addToCartState.asStateFlow()
 
     fun loadProduct(productId: Long) {
         viewModelScope.launch {
@@ -41,32 +38,39 @@ class ProductDetailViewModel @Inject constructor(
 
     fun addItemToCart(productId: Long, price: Double, quantity: Int = 1) {
         viewModelScope.launch {
-            _addToCartState.value = AddToCartState.Loading
+            _uiState.update { currentState ->
+                if (currentState is ProductDetailUiState.Success) {
+                    currentState.copy(isAddingToCart = true)
+                } else currentState
+            }
+
             addItemToCartUseCase(productId, quantity, price)
                 .onSuccess { cartItemId ->
-                    _addToCartState.value = AddToCartState.Success(cartItemId)
+                    _uiState.update { currentState ->
+                        if (currentState is ProductDetailUiState.Success) {
+                            currentState.copy(isAddingToCart = false, addToCartSuccess = true)
+                        } else currentState
+                    }
                 }
                 .onError { error ->
-                    _addToCartState.value = AddToCartState.Error(error.message ?: "An unknown error occurred")
+                    _uiState.update { currentState ->
+                        if (currentState is ProductDetailUiState.Success) {
+                            currentState.copy(isAddingToCart = false, error = error.message ?: "Failed to add to cart")
+                        } else currentState
+                    }
                 }
         }
-    }
-
-    fun resetAddToCartState() {
-        _addToCartState.value = AddToCartState.Initial
     }
 }
 
 sealed class ProductDetailUiState {
     object Initial : ProductDetailUiState()
     object Loading : ProductDetailUiState()
-    data class Success(val product: Product) : ProductDetailUiState()
+    data class Success(
+        val product: Product,
+        val isAddingToCart: Boolean = false,
+        val addToCartSuccess: Boolean = false,
+        val error: String? = null
+    ) : ProductDetailUiState()
     data class Error(val message: String) : ProductDetailUiState()
-}
-
-sealed class AddToCartState {
-    object Initial : AddToCartState()
-    object Loading : AddToCartState()
-    data class Success(val cartItemId: Long) : AddToCartState()
-    data class Error(val message: String) : AddToCartState()
 }

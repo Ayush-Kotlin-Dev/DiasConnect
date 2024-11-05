@@ -40,17 +40,14 @@ data class ProductDetailScreen(val productId: Long) : Screen {
             viewModel.loadProduct(productId)
         }
 
-        ProductDetailContent(uiState) { productId , price ->
-            viewModel.addItemToCart(productId , price)
-        }
+        ProductDetailContent(uiState, viewModel::addItemToCart)
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ProductDetailContent(
     uiState: ProductDetailUiState,
-    onBackClick: (Long , Double ) -> Unit
+    onAddToCart: (Long, Double, Int) -> Unit
 ) {
     val navigator = LocalNavigator.currentOrThrow
 
@@ -58,9 +55,7 @@ private fun ProductDetailContent(
         bottomBar = {
             when (uiState) {
                 is ProductDetailUiState.Success -> {
-                    BottomBar(uiState.product) {
-                        onBackClick(uiState.product.id , uiState.product.price)
-                    }
+                    BottomBar(uiState.product, uiState.isAddingToCart, onAddToCart)
                 }
                 else -> {}
             }
@@ -76,8 +71,17 @@ private fun ProductDetailContent(
                     CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                 }
                 is ProductDetailUiState.Success -> {
-                    ProductDetails(uiState.product) {
-                        navigator.pop()
+                    ProductDetails(uiState.product, navigator::pop)
+
+                    if (uiState.addToCartSuccess) {
+                        LaunchedEffect(Unit) {
+                            // Show a success message or navigate to cart
+                            // For example: navigator.push(CartScreen())
+                        }
+                    }
+
+                    uiState.error?.let { error ->
+                        ErrorSnackbar(error)
                     }
                 }
                 is ProductDetailUiState.Error -> {
@@ -99,135 +103,119 @@ private fun ProductDetails(product: Product, onBackClick: () -> Unit) {
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
     ) {
-        Box(modifier = Modifier.fillMaxWidth()) {
-            AsyncImage(
-                model = product.images.firstOrNull(),
-                contentDescription = product.name,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(350.dp),
-                contentScale = ContentScale.Crop
-            )
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .statusBarsPadding()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                IconButton(
-                    onClick = onBackClick,
-                    modifier = Modifier
-                        .size(40.dp)
-                        .background(Color.White.copy(alpha = 0.7f), CircleShape)
-                ) {
-                    Icon(
-                        Icons.Default.ArrowBack,
-                        contentDescription = "Back",
-                        tint = Color.Black
-                    )
-                }
-
-                IconButton(
-                    onClick = { isFavorite = !isFavorite },
-                    modifier = Modifier
-                        .size(40.dp)
-                        .background(Color.White.copy(alpha = 0.7f), CircleShape)
-                ) {
-                    Icon(
-                        if (isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
-                        contentDescription = if (isFavorite) "Remove from favorites" else "Add to favorites",
-                        tint = if (isFavorite) Color.Red else Color.Black
-                    )
-                }
-            }
+        ProductImage( isFavorite , product.images.firstOrNull(), product.name, onBackClick , ) {
+            isFavorite = !isFavorite
         }
 
-        Column(
-            modifier = Modifier.padding(16.dp)
+        ProductInfo(product, isFavorite)
+
+        SizeSelector(
+            sizes = listOf("8", "10", "38", "40"),
+            selectedSize = selectedSize,
+            onSizeSelected = { selectedSize = it }
+        )
+
+        DescriptionSection(product.description)
+    }
+}
+
+@Composable
+private fun ProductImage(
+    isFavorite: Boolean,
+    imageUrl: String?,
+    productName: String,
+    onBackClick: () -> Unit,
+    onFavoriteClick: () -> Unit,
+) {
+    Box(modifier = Modifier.fillMaxWidth()) {
+        AsyncImage(
+            model = imageUrl,
+            contentDescription = productName,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(350.dp),
+            contentScale = ContentScale.Crop
+        )
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .statusBarsPadding()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = product.name,
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    text = "$${product.price}",
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
-                )
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(vertical = 8.dp)
+            IconButton(
+                onClick = onBackClick,
+                modifier = Modifier
+                    .size(40.dp)
+                    .background(Color.White.copy(alpha = 0.7f), CircleShape)
             ) {
                 Icon(
-                    Icons.Default.Star,
-                    contentDescription = "Rating",
-                    tint = Color(0xFFFFB800),
-                    modifier = Modifier.size(20.dp)
-                )
-                Text(
-                    text = "4.5",
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Medium,
-                    modifier = Modifier.padding(horizontal = 4.dp)
-                )
-                Text(
-                    text = "(20 Review)",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.Gray
+                    Icons.Default.ArrowBack,
+                    contentDescription = "Back",
+                    tint = Color.Black
                 )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Size Section
-            Text(
-                text = "Size",
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Size Options
-            LazyRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.padding(vertical = 8.dp)
+            IconButton(
+                onClick = onFavoriteClick,
+                modifier = Modifier
+                    .size(40.dp)
+                    .background(Color.White.copy(alpha = 0.7f), CircleShape)
             ) {
-                items(listOf("8", "10", "38", "40")) { size ->
-                    SizeOption(
-                        size = size,
-                        isSelected = selectedSize == size,
-                        onSelect = { selectedSize = size }
-                    )
-                }
+                Icon(
+                    if (isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                    contentDescription = if (isFavorite) "Remove from favorites" else "Add to favorites",
+                    tint = if (isFavorite) Color.Red else Color.Black
+                )
             }
+        }
+    }
+}
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Description Section
+@Composable
+private fun ProductInfo(product: Product, isFavorite: Boolean) {
+    Column(
+        modifier = Modifier.padding(16.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Text(
-                text = "Description",
-                style = MaterialTheme.typography.titleLarge,
+                text = product.name,
+                style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold
             )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
             Text(
-                text = product.description,
+                text = "$${product.price}",
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(vertical = 8.dp)
+        ) {
+            Icon(
+                Icons.Default.Star,
+                contentDescription = "Rating",
+                tint = Color(0xFFFFB800),
+                modifier = Modifier.size(20.dp)
+            )
+            Text(
+                text = "4.5",
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier.padding(horizontal = 4.dp)
+            )
+            Text(
+                text = "(20 Review)",
                 style = MaterialTheme.typography.bodyMedium,
                 color = Color.Gray
             )
@@ -235,6 +223,56 @@ private fun ProductDetails(product: Product, onBackClick: () -> Unit) {
     }
 }
 
+@Composable
+private fun SizeSelector(
+    sizes: List<String>,
+    selectedSize: String?,
+    onSizeSelected: (String) -> Unit
+) {
+    Column {
+        Text(
+            text = "Size",
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(horizontal = 16.dp)
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            contentPadding = PaddingValues(horizontal = 16.dp),
+            modifier = Modifier.padding(vertical = 8.dp)
+        ) {
+            items(sizes) { size ->
+                SizeOption(
+                    size = size,
+                    isSelected = selectedSize == size,
+                    onSelect = { onSizeSelected(size) }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun DescriptionSection(description: String) {
+    Column(modifier = Modifier.padding(16.dp)) {
+        Text(
+            text = "Description",
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Text(
+            text = description,
+            style = MaterialTheme.typography.bodyMedium,
+            color = Color.Gray
+        )
+    }
+}
 @Composable
 private fun SizeOption(
     size: String,
@@ -265,7 +303,8 @@ private fun SizeOption(
 @Composable
 private fun BottomBar(
     product: Product,
-    onBuyNowClick: (Long) -> Unit
+    isAddingToCart: Boolean,
+    onAddToCart: (Long, Double, Int) -> Unit
 ) {
     Surface(
         modifier = Modifier
@@ -275,20 +314,25 @@ private fun BottomBar(
         shadowElevation = 4.dp
     ) {
         Button(
-            onClick = { onBuyNowClick(product.id) },
+            onClick = { onAddToCart(product.id, product.price, 1) },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.primary
             ),
-            shape = MaterialTheme.shapes.medium
+            shape = MaterialTheme.shapes.medium,
+            enabled = !isAddingToCart
         ) {
-            Text(
-                text = "Buy Now",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
-            )
+            if (isAddingToCart) {
+                CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
+            } else {
+                Text(
+                    text = "Buy Now",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+            }
         }
     }
 }
@@ -305,4 +349,15 @@ private fun ErrorMessage(message: String) {
             style = MaterialTheme.typography.bodyLarge
         )
     }
+}
+
+@Composable
+private fun ErrorSnackbar(message: String) {
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(message) {
+        snackbarHostState.showSnackbar(message)
+    }
+
+    SnackbarHost(hostState = snackbarHostState)
 }
