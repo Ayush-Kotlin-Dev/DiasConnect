@@ -202,7 +202,7 @@ private fun CartItemRow(
             verticalAlignment = Alignment.CenterVertically
         ) {
             AsyncImage(
-                model = "https://source.unsplash.com/random/60x60",
+                model = item.productImages.firstOrNull(),
                 contentDescription = item.productName,
                 modifier = Modifier
                     .size(60.dp)

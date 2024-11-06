@@ -12,6 +12,7 @@ query GetCartByIdQuery($cartId: Long!) {
       productDescription
       productId
       productName
+      productImages
       quantity
       updatedAt
     }

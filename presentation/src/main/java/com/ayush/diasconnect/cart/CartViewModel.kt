@@ -162,6 +162,7 @@ private fun CartItem.toCartItem(): CartItem {
         productName = this.productName,
         productDescription = this.productDescription,
         createdAt = this.createdAt,
-        updatedAt = this.updatedAt
+        updatedAt = this.updatedAt,
+        productImages = this.productImages
     )
 }

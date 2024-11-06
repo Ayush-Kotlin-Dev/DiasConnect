@@ -1,24 +1,18 @@
 package com.ayush.data.repository
 
 import android.util.Log
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
 import com.apollographql.apollo.ApolloClient
 import com.ayush.data.AddItemToCartMutation
 import com.ayush.data.GetCartByIdQuery
-import com.ayush.data.GetProductByIdQuery
 import com.ayush.data.RemoveCartItemMutation
 import com.ayush.data.UpdateCartItemQuantityMutation
 import com.ayush.data.datastore.UserPreferences
-import com.ayush.data.datastore.UserSettings
 import com.ayush.domain.model.Cart
 import com.ayush.domain.model.CartItem
 import com.ayush.domain.model.CartStatus
-import com.ayush.domain.model.Product
+import com.ayush.domain.model.Result
 import com.ayush.domain.repository.CartRepository
 import javax.inject.Inject
-import com.ayush.domain.model.Result
-import kotlinx.coroutines.flow.first
 
 class CartRepositoryImpl @Inject constructor(
     private val apolloClient: ApolloClient,
@@ -34,7 +28,9 @@ class CartRepositoryImpl @Inject constructor(
             val cartId = dataStore.getUserData().cartId
             Log.d("CartRepositoryImpl", "Getting cart by ID: $cartId")
             val response = apolloClient.query(GetCartByIdQuery(cartId.toLong())).execute()
+            Log.d("CartRepositoryImpl", "Response: $response")
             val cartData = response.data?.getCartById
+            Log.d("CartRepositoryImpl", "Cart data: $cartData")
 
             if (cartData != null) {
                 val cartItems = cartData.items.map { item ->
@@ -47,7 +43,8 @@ class CartRepositoryImpl @Inject constructor(
                         productName = item.productName,
                         productDescription = item.productDescription,
                         createdAt = item.createdAt,
-                        updatedAt = item.updatedAt
+                        updatedAt = item.updatedAt,
+                        productImages = item.productImages
                     )
                 }
 
@@ -62,6 +59,7 @@ class CartRepositoryImpl @Inject constructor(
                     updatedAt = cartData.updatedAt,
                     expiresAt = cartData.expiresAt
                 )
+                Log.d("CartRepositoryImpl", "Cart: $cart")
                 Result.success(cart)
             } else {
                 Result.error(Exception("Failed to get cart"))
