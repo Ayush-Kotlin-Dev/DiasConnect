@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
@@ -37,6 +38,7 @@ import com.ayush.diasconnect.tabs.CartTab
 import com.ayush.diasconnect.tabs.HomeTab
 import com.ayush.diasconnect.tabs.MoreTab
 import com.ayush.diasconnect.tabs.ProfileTab
+import com.ayush.diasconnect.ui.theme.Blue
 
 class ContainerApp : Screen {
     @Composable
@@ -65,8 +67,8 @@ class ContainerApp : Screen {
                     ) {
                         NavigationBar(
                             modifier = Modifier.height(73.dp),
-                            containerColor = Color.White,
-                            contentColor = Color.Black
+                            containerColor = MaterialTheme.colorScheme.surface,
+                            contentColor = MaterialTheme.colorScheme.onSurface
                         ) {
                             TabNavigationItem(HomeTab(onNavigator = { showBottomBar.value = it }))
                             TabNavigationItem(MoreTab(onNavigator = { showBottomBar.value = it }))
@@ -83,7 +85,6 @@ class ContainerApp : Screen {
 @Composable
 private fun RowScope.TabNavigationItem(tab: Tab) {
     val tabNavigator = LocalTabNavigator.current
-//    val selected = remember(tabNavigator.current) { tabNavigator.current::class == tab::class }
     val selected = tabNavigator.current == tab
 
     NavigationBarItem(
@@ -94,14 +95,17 @@ private fun RowScope.TabNavigationItem(tab: Tab) {
                 modifier = Modifier
                     .size(48.dp)
                     .clip(CircleShape)
-                    .background(if (selected) Color.Red.copy(alpha = 0.1f) else Color.Transparent),
+                    .background(
+                        if (selected) Blue.copy(alpha = 0.1f)
+                        else MaterialTheme.colorScheme.surface
+                    ),
                 contentAlignment = Alignment.Center
             ) {
                 tab.options.icon?.let { painter ->
                     Icon(
                         painter = painter,
                         contentDescription = tab.options.title,
-                        tint = if (selected) Color.Red else Color.Gray,
+                        tint = if (selected) Blue else MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(20.dp)
                     )
                 }
@@ -112,12 +116,12 @@ private fun RowScope.TabNavigationItem(tab: Tab) {
                 text = tab.options.title,
                 fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
                 fontSize = 10.sp,
-                color = if (selected) Color.Red else Color.Gray
+                color = if (selected) Blue else MaterialTheme.colorScheme.onSurfaceVariant
             )
         },
         colors = NavigationBarItemDefaults.colors(
-            selectedIconColor = Color.Red,
-            unselectedIconColor = Color.Gray,
+            selectedIconColor = Blue,
+            unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
             indicatorColor = Color.Transparent,
         ),
         alwaysShowLabel = false
