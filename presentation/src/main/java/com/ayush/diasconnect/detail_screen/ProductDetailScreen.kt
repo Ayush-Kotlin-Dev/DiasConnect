@@ -28,6 +28,7 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import coil.compose.AsyncImage
+import com.ayush.diasconnect.cart.CartScreen
 import com.ayush.domain.model.Product
 
 data class ProductDetailScreen(val productId: Long) : Screen {
@@ -76,7 +77,8 @@ private fun ProductDetailContent(
                     if (uiState.addToCartSuccess) {
                         LaunchedEffect(Unit) {
                             // Show a success message or navigate to cart
-                            // For example: navigator.push(CartScreen())
+                            // For example:
+                        navigator.push(CartScreen())
                         }
                     }
 
@@ -189,7 +191,7 @@ private fun ProductInfo(product: Product, isFavorite: Boolean) {
                 fontWeight = FontWeight.Bold
             )
             Text(
-                text = "$${product.price}",
+                text = "₹${product.price}",
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary

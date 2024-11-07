@@ -139,7 +139,19 @@ class CartRepositoryImpl @Inject constructor(
     }
 
     override suspend fun clearCart(cartId: Long): Result<Boolean> {
-        TODO("Not yet implemented")
+        return try {
+            val response = apolloClient.mutation(RemoveCartItemMutation(cartId)).execute()
+            val isRemoved = response.data?.removeCartItem ?: false
+
+            if (isRemoved) {
+                Result.success(true)
+            } else {
+                Result.error(Exception("Failed to clear cart"))
+            }
+        } catch (e: Exception) {
+            Log.e("CartRepositoryImpl", "Error clearing cart", e)
+            Result.error(e)
+        }
     }
 
     override suspend fun updateCartStatus(cartId: Long, status: CartStatus): Result<Boolean> {

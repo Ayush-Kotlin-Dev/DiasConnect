@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.ayush.data.datastore.UserPreferences
 import com.ayush.domain.model.User
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
