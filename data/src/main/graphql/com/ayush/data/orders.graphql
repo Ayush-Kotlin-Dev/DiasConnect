@@ -15,3 +15,25 @@ mutation CreateOrder($userId: Long!, $input: CreateOrderInput!) {
     }
   }
 }
+
+query GetUserOrders($userId: Long!) {
+  getUserOrders(userId: $userId) {
+    createdAt
+    currency
+    id
+    items {
+      price
+      id
+      productId
+      quantity
+    }
+    paymentMethod
+    shippingAddress
+    status
+    total
+    updatedAt
+    userId
+  }
+}
+
+

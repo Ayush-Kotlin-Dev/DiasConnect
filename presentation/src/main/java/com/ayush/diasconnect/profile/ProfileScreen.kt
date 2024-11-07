@@ -21,7 +21,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.hilt.navigation.compose.hiltViewModel
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.navigator.LocalNavigator
 import com.ayush.diasconnect.R
+import com.ayush.diasconnect.order.OrdersScreen
 
 class ProfileScreen
     : Screen {
@@ -29,6 +31,7 @@ class ProfileScreen
     override fun Content() {
         val viewModel: ProfileViewModel = hiltViewModel()
         val profileState by viewModel.profileState.collectAsState()
+        val navigator = LocalNavigator.current
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -77,7 +80,8 @@ class ProfileScreen
 
             ProfileMenuItem(
                 icon = R.drawable.ic_orders,
-                title = "Orders"
+                title = "Orders",
+                onClick = { navigator?.push(OrdersScreen()) }
             )
 
             ProfileMenuItem(

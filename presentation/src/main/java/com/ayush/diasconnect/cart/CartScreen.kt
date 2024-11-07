@@ -49,6 +49,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import cafe.adriel.voyager.navigator.tab.LocalTabNavigator
 import coil.compose.AsyncImage
 import com.ayush.diasconnect.R
 import com.ayush.diasconnect.order_success.OrderSuccessScreen
@@ -66,30 +67,25 @@ class CartScreen : Screen {
         val checkoutState by viewModel.checkoutState.collectAsState()
 
         val navigator = LocalNavigator.currentOrThrow
-        val onNavigateBack: () -> Unit = {
-            navigator.replace(HomeTab(
-                onNavigator = {  }
-            ))
-        }
+        val tabNavigator = LocalTabNavigator.current
         val sheetState = rememberModalBottomSheetState()
         var showBottomSheet by remember { mutableStateOf(false) }
-        var showSuccessScreen by remember { mutableStateOf(false) }
 
         LaunchedEffect(checkoutState) {
             when (checkoutState) {
                 is CheckoutState.CollectingInfo -> showBottomSheet = true
                 is CheckoutState.Success -> {
-                    // Handle successful order creation (e.g., navigate to order confirmation screen)
                     showBottomSheet = false
-//                    viewModel.onClearCart()
-                    navigator.push(OrderSuccessScreen(onDismiss = onNavigateBack))
+                    navigator.push(OrderSuccessScreen(
+                        onDismiss = {
+                            navigator.popUntil { it is CartScreen }
+                            navigator.pop()
+                            tabNavigator.current = HomeTab(onNavigator = {})
+                        }
+                    ))
                 }
-
                 else -> showBottomSheet = false
             }
-        }
-        if (showSuccessScreen) {
-            
         }
 
         Column(
@@ -97,7 +93,7 @@ class CartScreen : Screen {
                 .fillMaxSize()
                 .padding(16.dp)
         ) {
-            CartHeader(onNavigateBack)
+            CartHeader(onNavigateBack = { tabNavigator.current = HomeTab(onNavigator = {}) })
             CartItems(
                 items = uiState.items,
                 onIncreaseQuantity = viewModel::onIncreaseQuantity,
@@ -110,6 +106,7 @@ class CartScreen : Screen {
                 onClick = viewModel::onCheckoutClick
             )
         }
+
         if (showBottomSheet) {
             ModalBottomSheet(
                 onDismissRequest = { showBottomSheet = false },

@@ -31,12 +31,12 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val splashScreen = installSplashScreen()
-
-        // Keeps splash screen until data is loaded
-        splashScreen.setKeepOnScreenCondition {
-            viewModel.uiState.value is MainActivityViewModel.UiState.Loading
-        }
+//        val splashScreen = installSplashScreen()
+//
+//        // Keeps splash screen until data is loaded
+//        splashScreen.setKeepOnScreenCondition {
+//            viewModel.uiState.value is MainActivityViewModel.UiState.Loading
+//        }
 
         setContent {
             DiasConnectTheme {

@@ -1,29 +1,41 @@
 package com.ayush.diasconnect.order
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.ayush.data.datastore.UserPreferences
+import com.ayush.domain.model.Order
+import com.ayush.domain.model.OrderStatus
+import com.ayush.domain.model.myOrder
+import com.ayush.domain.usecases.GetOrdersUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-//@ExperimentalStdlibApi
-//@HiltViewModel
-//class OrdersViewModel  : ViewModel() {
-//    private val _orders = MutableStateFlow<List<Order>>(emptyList())
-//    val orders: StateFlow<List<Order>> = _orders.asStateFlow()
-//
-//    init {
-//
-//        fetchOrders()
-//    }
-//
-//    private fun fetchOrders() {
-////         some dummy data
-//        val dummyOrders = listOf(
-//            Order("1", listOf("Item 1", "Item 2"), 25.99, "Delivered"),
-//            Order("2", listOf("Item 3"), 15.50, "Processing"),
-//            Order("3", listOf("Item 4", "Item 5", "Item 6"), 45.00, "Shipped")
-//        )
-//        _orders.value = dummyOrders
-//    }
-//}
+@HiltViewModel
+class OrdersViewModel @Inject constructor(
+    private val getOrdersUseCase: GetOrdersUseCase
+)  : ViewModel() {
+    private val _orders = MutableStateFlow<List<myOrder>>(emptyList())
+    val orders: StateFlow<List<myOrder>> = _orders.asStateFlow()
+
+    init {
+
+        fetchOrders()
+    }
+
+    private fun fetchOrders() {
+        viewModelScope.launch {
+            getOrdersUseCase().onSuccess { orders ->
+                _orders.value = orders
+            }.onError {
+                // Handle error
+                emptyList<myOrder>()
+            }
+
+        }
+
+    }
+}

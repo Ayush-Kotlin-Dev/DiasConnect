@@ -2,19 +2,21 @@ package com.ayush.data.repository
 
 import com.apollographql.apollo.ApolloClient
 import com.ayush.data.CreateOrderMutation
+import com.ayush.data.GetUserOrdersQuery
 import com.ayush.data.datastore.UserPreferences
 import com.ayush.domain.model.CreateOrderInput
 import com.ayush.domain.model.Order
-import com.ayush.data.type.OrderItemInput as GraphQLOrderItemInput
-import com.ayush.domain.repository.OrderRepository
 import com.ayush.domain.model.Result
+import com.ayush.domain.model.myOrder
+import com.ayush.domain.repository.OrderRepository
 import javax.inject.Inject
+import com.ayush.data.type.OrderItemInput as GraphQLOrderItemInput
 
 
-class OrderRepositoryImpl  @Inject constructor(
+class OrderRepositoryImpl @Inject constructor(
     private val apolloClient: ApolloClient,
     private val dataStore: UserPreferences
-): OrderRepository {
+) : OrderRepository {
     override suspend fun createOrder(
         input: CreateOrderInput
     ): Result<Order> {
@@ -43,6 +45,7 @@ class OrderRepositoryImpl  @Inject constructor(
             response.hasErrors() -> {
                 return Result.error(Exception(response.errors?.first()?.message))
             }
+
             else -> {
                 val order = response.data?.createOrder?.toOrder()
                 if (order != null) {
@@ -53,6 +56,46 @@ class OrderRepositoryImpl  @Inject constructor(
             }
         }
     }
+
+    override suspend fun getOrdersByUserId(): Result<List<myOrder>> {
+        val userId = dataStore.getUserData().id.toLong()
+
+        return try {
+            val response = apolloClient.query(GetUserOrdersQuery(userId)).execute()
+
+            val orders = response.data?.getUserOrders
+
+            if (orders != null) {
+                val myOrders = orders.map {
+                    myOrder(
+                        id = it.id,
+                        userId = it.userId,
+                        status = com.ayush.domain.model.OrderStatus.valueOf(it.status.name),
+                        total = it.total.toFloat(),
+                        currency = it.currency,
+                        shippingAddress = it.shippingAddress,
+                        paymentMethod = it.paymentMethod,
+                        createdAt = it.createdAt,
+                        updatedAt = it.updatedAt,
+                        items = it.items.map {
+                            com.ayush.domain.model.OrderItemType(
+                                id = it.id,
+                                productId = it.productId,
+                                quantity = it.quantity,
+                                price = it.price
+                            )
+                        }
+                    )
+                }
+                Result.success(myOrders)
+            } else {
+                Result.error(Exception("Failed to get orders"))
+            }
+        } catch (e: Exception) {
+            Result.error(e)
+        }
+    }
+
 
     private fun CreateOrderMutation.CreateOrder.toOrder(): Order {
         return Order(
