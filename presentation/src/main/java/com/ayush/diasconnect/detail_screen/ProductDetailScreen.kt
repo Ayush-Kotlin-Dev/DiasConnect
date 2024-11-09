@@ -29,6 +29,7 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import coil.compose.AsyncImage
 import com.ayush.diasconnect.cart.CartScreen
+import com.ayush.diasconnect.components.LoadingIndicator
 import com.ayush.domain.model.Product
 
 data class ProductDetailScreen(val productId: Long) : Screen {
@@ -327,7 +328,7 @@ private fun BottomBar(
             enabled = !isAddingToCart
         ) {
             if (isAddingToCart) {
-                CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
+                LoadingIndicator( modifier = Modifier.size(24.dp))
             } else {
                 Text(
                     text = "Buy Now",

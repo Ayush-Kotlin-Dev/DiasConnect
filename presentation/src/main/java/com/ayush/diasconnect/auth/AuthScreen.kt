@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
+import com.ayush.diasconnect.components.LoadingIndicator
 import com.ayush.diasconnect.home.ProductScreen
 
 
@@ -92,7 +93,7 @@ class  AuthScreen() : Screen{
             }
 
             if (uiState.isLoading) {
-                CircularProgressIndicator()
+                LoadingIndicator()
             }
 
             uiState.error?.let { error ->

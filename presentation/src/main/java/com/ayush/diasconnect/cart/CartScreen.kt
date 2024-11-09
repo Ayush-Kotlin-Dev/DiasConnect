@@ -52,6 +52,7 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import cafe.adriel.voyager.navigator.tab.LocalTabNavigator
 import coil.compose.AsyncImage
 import com.ayush.diasconnect.R
+import com.ayush.diasconnect.components.LoadingIndicator
 import com.ayush.diasconnect.order_success.OrderSuccessScreen
 import com.ayush.diasconnect.tabs.HomeTab
 import com.ayush.domain.model.CartItem
@@ -301,7 +302,7 @@ fun CheckoutInfoCollectionSheet(
             enabled = !isProcessing && name.isNotBlank() && shippingAddress.isNotBlank()
         ) {
             if (isProcessing) {
-                CircularProgressIndicator(color = MaterialTheme.colorScheme.onPrimary)
+                LoadingIndicator()
             } else {
                 Text("Place Order")
             }
